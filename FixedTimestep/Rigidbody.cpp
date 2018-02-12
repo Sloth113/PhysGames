@@ -41,6 +41,7 @@ void Rigidbody::resolveCollisions(Rigidbody * actor2)
 {
 	glm::vec2 normal = glm::normalize(actor2->getPosition() - m_position);
 	glm::vec2 relativeVelocity = actor2->getVelocity() - m_velocity;
+	if (glm::dot(relativeVelocity, normal) >= 0) return; //Stops being stuck
 	float elasticity = 1; 
 	float j = glm::dot(-(1 + elasticity) * (relativeVelocity), normal) / glm::dot(normal, normal * ((1 / m_mass) + (1 / actor2->getMass()))); 
 	glm::vec2 force = normal * j; 

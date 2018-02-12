@@ -9,6 +9,8 @@
 #include "Plane.h"
 #include "Box.h"
 #include "Line.h"
+#include <stdlib.h>
+#include <time.h>
 
 class FixedTimestepApp : public aie::Application {
 public:
@@ -21,6 +23,13 @@ public:
 
 	virtual void update(float deltaTime);
 	virtual void draw();
+
+	//Set up scenes
+	void SphereWallsCollisions();
+	void TestingScene();
+	void CradleTest();
+	void Overload();
+
 
 protected:
 

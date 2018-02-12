@@ -23,6 +23,62 @@ bool FixedTimestepApp::startup() {
 	// the following path would be used instead: "./font/consolas.ttf"
 	m_font = new aie::Font("../bin/font/consolas.ttf", 32);
 
+	std::srand(std::time(NULL));
+	
+	//SphereWallsCollisions();
+	//TestingScene(); //circle intersection 
+	//CradleTest();
+	Overload();
+
+	return true;
+}
+
+
+
+void FixedTimestepApp::shutdown() {
+
+	delete m_font;
+	delete m_2dRenderer;
+}
+
+void FixedTimestepApp::update(float deltaTime) {
+
+	// input example
+	aie::Input* input = aie::Input::getInstance();
+	
+	aie::Gizmos::clear();
+
+	
+
+	m_physicsScene->update(deltaTime);
+	m_physicsScene->updateGizmos();
+
+	// exit the application
+	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
+		quit();
+}
+
+void FixedTimestepApp::draw() {
+
+	// wipe the screen to the background colour
+	clearScreen();
+
+	// begin drawing sprites
+	m_2dRenderer->begin();
+
+	// draw your stuff here!
+	static float aspectRatio = 16 / 9.f;
+	aie::Gizmos::draw2D(glm::ortho<float>(0, 200, 0 / aspectRatio, 200 / aspectRatio, -1.0f, 1.0f));
+
+	// output some text, uses the last used colour
+	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
+
+	// done drawing sprites
+	m_2dRenderer->end();
+}
+
+void FixedTimestepApp::SphereWallsCollisions()
+{
 	m_physicsScene = new PhysicsScene();
 	//m_physicsScene->setGravity(glm::vec2(0, -9.8f));
 	m_physicsScene->setTimeStep(0.01f);
@@ -56,17 +112,17 @@ bool FixedTimestepApp::startup() {
 	ball3->applyForce(glm::vec2(0, -100));
 	ball4->applyForce(glm::vec2(0, 10));
 	ball5->applyForce(glm::vec2(-230, 120));
-	
+
 	//ball4->setStatic(true);
 	//ball3->applyForce(glm::vec2(-40, 0));
-	
+
 	//Bounds
 	float aspRatio = 16 / 9.f;
 	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
 	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
 	Plane* left = new Plane(glm::vec2(1, 0), 2);
-	Plane* right = new Plane(glm::vec2(1, 0),198);
-	
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
 	m_physicsScene->addActor(bottom);
 	m_physicsScene->addActor(top);
 	m_physicsScene->addActor(left);
@@ -76,7 +132,7 @@ bool FixedTimestepApp::startup() {
 	Plane* plane1 = new Plane(glm::vec2(1, 0), 100);
 	Plane* plane2 = new Plane(glm::vec2(0, 1), 20);
 	Plane* plane3 = new Plane(glm::vec2(1, -1), 10);
-	
+
 	m_physicsScene->addActor(plane1);
 	m_physicsScene->addActor(plane2);
 	m_physicsScene->addActor(plane3);
@@ -87,47 +143,102 @@ bool FixedTimestepApp::startup() {
 
 	Line * line1 = new Line(glm::vec2(60, 60), glm::vec2(0, 0), 0.0f, 1.0f, 10.0f, glm::vec4(0, 1, 0, 1));
 	//m_physicsScene->addActor(line1);
-
-
-	return true;
 }
 
-void FixedTimestepApp::shutdown() {
+void FixedTimestepApp::TestingScene()
+{
+	//m_physicsScene->setGravity(glm::vec2(0, -9.8f));
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setTimeStep(0.01f);
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
 
-	delete m_font;
-	delete m_2dRenderer;
-}
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
 
-void FixedTimestepApp::update(float deltaTime) {
+	//Ball on ball
+	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(56, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
 
-	// input example
-	aie::Input* input = aie::Input::getInstance();
+	ball1->applyForce(glm::vec2(150, 1));
+	ball2->applyForce(glm::vec2(100, 4));
+
+	m_physicsScene->addActor(ball1);
+	m_physicsScene->addActor(ball2);	
 	
-	aie::Gizmos::clear();
-
-	m_physicsScene->update(deltaTime);
-	m_physicsScene->updateGizmos();
-
-	// exit the application
-	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
-		quit();
 }
 
-void FixedTimestepApp::draw() {
+void FixedTimestepApp::CradleTest()
+{
+	//m_physicsScene->setGravity(glm::vec2(0, -9.8f));
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setTimeStep(0.01f);
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
 
-	// wipe the screen to the background colour
-	clearScreen();
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
 
-	// begin drawing sprites
-	m_2dRenderer->begin();
+	//Ball on ball
+	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 8.0f, 4, glm::vec4(0, 1, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(58, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball3 = new Sphere(glm::vec2(66, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball4 = new Sphere(glm::vec2(74, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball5 = new Sphere(glm::vec2(82, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
 
-	// draw your stuff here!
-	static float aspectRatio = 16 / 9.f;
-	aie::Gizmos::draw2D(glm::ortho<float>(0, 200, 0 / aspectRatio, 200 / aspectRatio, -1.0f, 1.0f));
+	ball1->applyForce(glm::vec2(200, 0));
 
-	// output some text, uses the last used colour
-	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
-
-	// done drawing sprites
-	m_2dRenderer->end();
+	m_physicsScene->addActor(ball1);
+	m_physicsScene->addActor(ball2);
+	m_physicsScene->addActor(ball3);
+	m_physicsScene->addActor(ball4);
+	m_physicsScene->addActor(ball5);
 }
+
+void FixedTimestepApp::Overload()
+{
+	//m_physicsScene->setGravity(glm::vec2(0, -9.8f));
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setTimeStep(0.01f);
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
+
+	//
+	Sphere* bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(100, 0), 20.0f, 8, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(bigBall);
+
+	Sphere * balls[100];
+	for (int i = 0; i < 100; i++) {
+		balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1));
+		m_physicsScene->addActor(balls[i]);
+		if (rand() % 10 == 0) {
+			//balls[i]->setStatic(true); //WORK OUT STATIC COLLISINOS 
+		}
+
+	}
+	
+}
+
+
+
