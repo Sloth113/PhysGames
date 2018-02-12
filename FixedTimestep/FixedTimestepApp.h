@@ -37,4 +37,5 @@ protected:
 	aie::Font*			m_font;
 
 	PhysicsScene*		m_physicsScene;
+	Sphere* bigBall;
 };

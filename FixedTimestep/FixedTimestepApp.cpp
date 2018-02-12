@@ -16,7 +16,7 @@ bool FixedTimestepApp::startup() {
 	// increase the 2d line count to maximize the number of objects we can draw
 	aie::Gizmos::create(255U, 255U, 65535U, 65535U);
 
-
+	
 	m_2dRenderer = new aie::Renderer2D();
 
 	// TODO: remember to change this when redistributing a build!
@@ -29,6 +29,8 @@ bool FixedTimestepApp::startup() {
 	//TestingScene(); //circle intersection 
 	//CradleTest();
 	Overload();
+	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 100.0f, 0.5f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(bigBall);
 
 	return true;
 }
@@ -47,12 +49,19 @@ void FixedTimestepApp::update(float deltaTime) {
 	aie::Input* input = aie::Input::getInstance();
 	
 	aie::Gizmos::clear();
+	//Spawn balls
+	if (input->wasMouseButtonPressed(aie::INPUT_MOUSE_BUTTON_LEFT)) {
+		m_physicsScene->addActor(new Sphere(glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY()/(float)getWindowHeight() * 115), glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1)));
+	}
+	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_RIGHT )&& bigBall != nullptr) {
+		bigBall->applyForce(glm::vec2( glm::normalize(glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115) - bigBall->getPosition())) * 100.0f);
+	}
 
-	
 
 	m_physicsScene->update(deltaTime);
 	m_physicsScene->updateGizmos();
 
+	m_physicsScene->debugScene();
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -165,12 +174,14 @@ void FixedTimestepApp::TestingScene()
 	//Ball on ball
 	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
 	Sphere* ball2 = new Sphere(glm::vec2(56, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-
+	Sphere* ball3 = new Sphere(glm::vec2(100, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 1, 1, 1));
+	ball3->setStatic(true);
 	ball1->applyForce(glm::vec2(150, 1));
 	ball2->applyForce(glm::vec2(100, 4));
 
 	m_physicsScene->addActor(ball1);
 	m_physicsScene->addActor(ball2);	
+	m_physicsScene->addActor(ball3);
 	
 }
 
@@ -192,11 +203,11 @@ void FixedTimestepApp::CradleTest()
 	m_physicsScene->addActor(right);
 
 	//Ball on ball
-	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 8.0f, 4, glm::vec4(0, 1, 0, 1));
-	Sphere* ball2 = new Sphere(glm::vec2(58, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball3 = new Sphere(glm::vec2(66, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball4 = new Sphere(glm::vec2(74, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball5 = new Sphere(glm::vec2(82, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 2.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(60, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball3 = new Sphere(glm::vec2(70, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball4 = new Sphere(glm::vec2(80, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball5 = new Sphere(glm::vec2(90, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
 
 	ball1->applyForce(glm::vec2(200, 0));
 
@@ -225,16 +236,21 @@ void FixedTimestepApp::Overload()
 	m_physicsScene->addActor(right);
 
 	//
-	Sphere* bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(100, 0), 20.0f, 8, glm::vec4(0, 1, 1, 1));
-	m_physicsScene->addActor(bigBall);
+
 
 	Sphere * balls[100];
 	for (int i = 0; i < 100; i++) {
-		balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1));
-		m_physicsScene->addActor(balls[i]);
+		
 		if (rand() % 10 == 0) {
-			//balls[i]->setStatic(true); //WORK OUT STATIC COLLISINOS 
+			balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 10.0f, 3, glm::vec4(0.5f, 0.5f, 0.5f, 1));
+			m_physicsScene->addActor(balls[i]);
+			balls[i]->setStatic(true); //WORK OUT STATIC COLLISINOS 
 		}
+		else {
+			balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 10.0f, 3, glm::vec4(1, 1, 1, 1));
+			m_physicsScene->addActor(balls[i]);
+		}
+
 
 	}
 	

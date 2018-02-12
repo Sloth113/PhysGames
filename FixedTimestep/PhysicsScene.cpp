@@ -92,11 +92,20 @@ void PhysicsScene::updateGizmos()
 void PhysicsScene::debugScene()
 {
 	int count = 0;
+	float sysEnergy = 0;
 	for (auto pActor : m_actors) {
+		Rigidbody * cast = dynamic_cast<Rigidbody * >(pActor);
+		if(cast != nullptr)
+			sysEnergy += (glm::dot(cast->getVelocity(), cast->getVelocity())) * cast->getMass() /2.0f;
+		cast = nullptr;
+		/*
 		std::cout << count << " : ";
 		pActor->debug();
 		count++;
+		std::cout << std::endl;
+		*/
 	}
+	std::cout << sysEnergy << std::endl;
 
 }
 

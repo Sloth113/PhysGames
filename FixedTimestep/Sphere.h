@@ -10,7 +10,7 @@ public:
 
 	virtual void makeGizmo();
 	virtual bool checkCollision(PhysicsObject* pOther);
-
+	virtual void debug();
 	float getRadius() { return m_radius; }
 	glm::vec4 getColour() { return m_colour; }
 	

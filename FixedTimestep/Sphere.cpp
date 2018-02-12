@@ -9,6 +9,8 @@ Sphere::~Sphere()
 {
 }
 
+
+
 void Sphere::makeGizmo()
 {
 	aie::Gizmos::add2DCircle(m_position, m_radius, 32, m_colour);
@@ -30,6 +32,11 @@ bool Sphere::checkCollision(PhysicsObject * pOther)
 		return false;
 	}
 	return false;
+}
+
+void Sphere::debug()
+{
+	std::cout << "P = " << glm::length(m_velocity * m_mass); 
 }
 
 void Sphere::Collide(PhysicsObject * obj)
