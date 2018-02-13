@@ -29,6 +29,7 @@ public:
 	void TestingScene();
 	void CradleTest();
 	void Overload();
+	void AllTheShapes();
 
 
 protected:

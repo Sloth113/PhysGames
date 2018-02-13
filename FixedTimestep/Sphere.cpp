@@ -12,6 +12,12 @@ Sphere::~Sphere()
 
 
 
+void Sphere::fixedUpdate(glm::vec2 gravity, float timeStep)
+{
+	Rigidbody::fixedUpdate(gravity, timeStep);
+
+}
+
 void Sphere::makeGizmo()
 {
 	glm::vec2 end = glm::vec2(std::cos(m_rotation), std::sin(m_rotation)) * m_radius;

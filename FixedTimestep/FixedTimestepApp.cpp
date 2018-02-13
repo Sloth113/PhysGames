@@ -29,10 +29,11 @@ bool FixedTimestepApp::startup() {
 	//TestingScene(); //circle intersection 
 	//CradleTest();
 	//Overload();
-	m_physicsScene = new PhysicsScene();
-	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 100.0f, 5.0f, glm::vec4(0, 1, 1, 1));
-	m_physicsScene->addActor(bigBall);
-	//m_physicsScene->setGravity(glm::vec2(0, -10));
+	AllTheShapes();
+	
+	/*m_physicsScene = new PhysicsScene();
+	m_physicsScene->setGravity(glm::vec2(0, -50.0f));
+	m_physicsScene->setTimeStep(0.01f);
 
 	float aspRatio = 16 / 9.f;
 	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
@@ -40,16 +41,15 @@ bool FixedTimestepApp::startup() {
 	Plane* left = new Plane(glm::vec2(1, 0), 2);
 	Plane* right = new Plane(glm::vec2(1, 0), 198);
 
-	testB = new Box(glm::vec2(56, 60), glm::vec2(0, 0), 0.0f, 10, glm::vec2(5, 8), glm::vec4(1, 0, 0, 1));
-	testB->applyForce(glm::vec2(0, -10), testB->getPosition());
-	m_physicsScene->addActor(testB);
-	
-
-
 	m_physicsScene->addActor(bottom);
 	m_physicsScene->addActor(top);
 	m_physicsScene->addActor(left);
 	m_physicsScene->addActor(right);
+
+	Box * box = new Box(glm::vec2(rand() % 100 + 5, (rand() & 100) + 5), glm::vec2(rand() % 10 + 1, rand() % 10 + 1), 0, 4, glm::vec2(4, 4), glm::vec4(1, 0, 0, 1));
+
+	m_physicsScene->addActor(box);
+	*/
 
 	return true;
 }
@@ -106,6 +106,43 @@ void FixedTimestepApp::draw() {
 
 	// done drawing sprites
 	m_2dRenderer->end();
+}
+
+void FixedTimestepApp::AllTheShapes()
+{
+	m_physicsScene = new PhysicsScene();
+	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 1, 5.0f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(bigBall);
+	
+	//m_physicsScene->setGravity(glm::vec2(0, -10));
+
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	testB = new Box(glm::vec2(56, 60), glm::vec2(0, 0), 0.0f, 10, glm::vec2(5, 8), glm::vec4(1, 0, 0, 1));
+	testB->applyForce(glm::vec2(0, -10), testB->getPosition());
+	m_physicsScene->addActor(testB);
+
+	Box* testB2 = new Box(glm::vec2(76, 80), glm::vec2(0, 0), 0.0f, 10, glm::vec2(1, 10), glm::vec4(1, 0, 0, 1));
+	testB2->applyForce(glm::vec2(0, -10), testB->getPosition());
+	m_physicsScene->addActor(testB2);
+
+
+	Box* testB3 = new Box(glm::vec2(106, 80), glm::vec2(0, 0), 0.0f, 10, glm::vec2(3, 3), glm::vec4(1, 0, 0, 1));
+	testB3->applyForce(glm::vec2(0, -30), testB->getPosition());
+	m_physicsScene->addActor(testB3);
+
+	Box* testB4 = new Box(glm::vec2(72, 80), glm::vec2(0, 0), 0.0f, 10, glm::vec2(1, 10), glm::vec4(1, 0, 0, 1));
+	
+	m_physicsScene->addActor(testB4);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
 }
 
 /*

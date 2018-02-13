@@ -23,6 +23,8 @@ public:
 	virtual void CollideWithSphere(Sphere* obj);
 	virtual void CollideWithBox(Box* obj);
 
+	bool checkBoxCorners(const Box& box, glm::vec2& contact, int & numContacts, float &pen, glm::vec2& edgeNormal);
+
 protected:
 	//glm::vec2 m_size;
 	glm::vec4 m_colour;
