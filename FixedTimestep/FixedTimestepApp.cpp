@@ -28,9 +28,28 @@ bool FixedTimestepApp::startup() {
 	//SphereWallsCollisions();
 	//TestingScene(); //circle intersection 
 	//CradleTest();
-	Overload();
-	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 100.0f, 0.5f, glm::vec4(0, 1, 1, 1));
+	//Overload();
+	m_physicsScene = new PhysicsScene();
+	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 100.0f, 5.0f, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->addActor(bigBall);
+	//m_physicsScene->setGravity(glm::vec2(0, -10));
+
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	testB = new Box(glm::vec2(56, 60), glm::vec2(0, 0), 0.0f, 10, glm::vec2(5, 8), glm::vec4(1, 0, 0, 1));
+	testB->applyForce(glm::vec2(0, -10), testB->getPosition());
+	m_physicsScene->addActor(testB);
+	
+
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
 
 	return true;
 }
@@ -51,10 +70,13 @@ void FixedTimestepApp::update(float deltaTime) {
 	aie::Gizmos::clear();
 	//Spawn balls
 	if (input->wasMouseButtonPressed(aie::INPUT_MOUSE_BUTTON_LEFT)) {
-		m_physicsScene->addActor(new Sphere(glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY()/(float)getWindowHeight() * 115), glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1)));
+		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+		m_physicsScene->addActor(new Sphere(click, glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1)));
 	}
 	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_RIGHT )&& bigBall != nullptr) {
-		bigBall->applyForce(glm::vec2( glm::normalize(glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115) - bigBall->getPosition())) * 100.0f);
+		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+		
+		bigBall->applyForce(glm::vec2( glm::normalize(click - bigBall->getPosition())) * 100.0f, glm::vec2(0,0));
 	}
 
 
@@ -86,6 +108,7 @@ void FixedTimestepApp::draw() {
 	m_2dRenderer->end();
 }
 
+/*
 void FixedTimestepApp::SphereWallsCollisions()
 {
 	m_physicsScene = new PhysicsScene();
@@ -255,6 +278,6 @@ void FixedTimestepApp::Overload()
 	}
 	
 }
-
+*/
 
 

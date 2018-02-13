@@ -3,6 +3,7 @@
 
 Sphere::Sphere(glm::vec2 position, glm::vec2 velocity, float mass, float radius, glm::vec4 colour):Rigidbody(ShapeType::SPHERE,position, velocity, 0.0f, mass), m_radius(radius), m_colour(colour)
 {
+	m_moment = 0.5f * m_mass * m_radius * m_radius;
 }
 
 Sphere::~Sphere()
@@ -13,7 +14,10 @@ Sphere::~Sphere()
 
 void Sphere::makeGizmo()
 {
+	glm::vec2 end = glm::vec2(std::cos(m_rotation), std::sin(m_rotation)) * m_radius;
+
 	aie::Gizmos::add2DCircle(m_position, m_radius, 32, m_colour);
+	aie::Gizmos::add2DLine(m_position, m_position + end, glm::vec4(0, 0, 0, 1));
 }
 
 bool Sphere::checkCollision(PhysicsObject * pOther)
@@ -66,8 +70,10 @@ void Sphere::CollideWithPlane(Plane * obj)
 	if (intersection > 0) {
 		//COLLIDES
 		//this->m_velocity = glm::vec2(0, 0);
-		if(vIntoPlane < 0)
-			obj->resolveCollision(this);
+		if (vIntoPlane < 0) {
+			glm::vec2 con = this->getPosition() + (collisionNormal * -this->getRadius());
+			obj->resolveCollision(this, con);
+		}
 	}
 
 }
@@ -83,7 +89,7 @@ void Sphere::CollideWithSphere(Sphere * obj)
 		//obj->m_velocity = glm::vec2(0, 0);
 		//
 		
-		resolveCollisions(obj);
+		resolveCollisions(obj, 0.5f * (getPosition() + obj->getPosition()));;
 	}
 }
 

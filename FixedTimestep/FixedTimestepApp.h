@@ -38,4 +38,5 @@ protected:
 
 	PhysicsScene*		m_physicsScene;
 	Sphere* bigBall;
+	Box * testB;
 };
