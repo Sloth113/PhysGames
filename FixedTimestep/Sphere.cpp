@@ -76,6 +76,7 @@ void Sphere::CollideWithPlane(Plane * obj)
 	if (intersection > 0) {
 		//COLLIDES
 		//this->m_velocity = glm::vec2(0, 0);
+		this->setPosition(this->getPosition() + collisionNormal * (this->getRadius() - sphereToPlane));
 		if (vIntoPlane < 0) {
 			glm::vec2 con = this->getPosition() + (collisionNormal * -this->getRadius());
 			obj->resolveCollision(this, con);
@@ -87,13 +88,22 @@ void Sphere::CollideWithPlane(Plane * obj)
 void Sphere::CollideWithSphere(Sphere * obj)
 {
 	//check collision 
-	float dist = glm::distance(m_position, obj->getPosition());
-
-	if (dist < m_radius + obj->getRadius()) {
+	glm::vec2 delta = obj->getPosition() - this->getPosition();
+	float distance = glm::length(delta);
+	float intersection = this->getRadius() + obj->getRadius() - distance;
+	//old check
+	//float dist = glm::distance(m_position, obj->getPosition());
+	//if (dist < m_radius + obj->getRadius()) {
 		//Collided
 		//m_velocity = glm::vec2(0, 0);
 		//obj->m_velocity = glm::vec2(0, 0);
 		//
+		//Contact forces
+	if(intersection > 0){
+		glm::vec2 contactForce = 0.5f * (distance - (this->getRadius() + obj->getRadius()))*delta / distance;
+
+		this->setPosition(this->getPosition() + contactForce);
+		obj->setPosition(obj->getPosition() - contactForce);
 		
 		resolveCollisions(obj, 0.5f * (getPosition() + obj->getPosition()));;
 	}
