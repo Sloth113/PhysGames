@@ -21,7 +21,7 @@ public:
 
 	
 	bool isKinematic() { return m_isKinematic; }
-	void setKinematic(bool set) { m_isKinematic = set; m_mass = INT_MAX; }
+	void setKinematic(bool set) { m_isKinematic = set; m_mass = (float)INT_MAX; }
 	glm::vec2 getPosition() { return m_position; }
 	void setPosition(glm::vec2 pos) { m_position = pos; }
 	float getRotation() { return m_rotation; }
@@ -31,7 +31,9 @@ public:
 	float getMass() { return m_mass; }
 	void setMass(float set) { m_mass = set; }
 	float getLinearDrag() { return m_linearDrag; }
+	void setLinearDrag(float set) { m_linearDrag = set; }
 	float getAngularDrag() { return m_angularDrag; }
+	void setAngularDrag(float set) { m_angularDrag = set; }
 	float getElasticity() { return m_elasticity; }
 	void setElasticity(float set) { m_elasticity = set; }
 

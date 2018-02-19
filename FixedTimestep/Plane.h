@@ -19,6 +19,9 @@ public:
 	float getDistance() { return m_distanceToOrigin; } 
 	void resolveCollision(Rigidbody * actor2, glm::vec2 contact);
 
+	float getElasticity() { return m_elasticity; }
+	void setElasticity(float set) { m_elasticity = set; }
+
 	virtual void Collide(PhysicsObject* obj);
 	virtual void CollideWithPlane(Plane* obj);
 	virtual void CollideWithSphere(Sphere* obj);
@@ -27,6 +30,7 @@ public:
 protected: 
 	glm::vec2 m_normal; 
 	float m_distanceToOrigin;
+	float m_elasticity;
 
 };
 

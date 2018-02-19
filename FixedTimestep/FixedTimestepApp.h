@@ -9,6 +9,8 @@
 #include "Plane.h"
 #include "Box.h"
 #include "Line.h"
+#include "Spring.h"
+#include "PlatformPlayer.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -30,7 +32,8 @@ public:
 	void CradleTest();
 	void Overload();
 	void AllTheShapes();
-
+	void SpringTests();
+	void Platformer();
 
 protected:
 

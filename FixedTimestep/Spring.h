@@ -9,6 +9,11 @@ public:
 	virtual void fixedUpdate(glm::vec2 gravity, float timeStep);
 	virtual void debug();
 	virtual void makeGizmo();
+
+	virtual void Collide(PhysicsObject* obj) {};
+	virtual void CollideWithPlane(Plane* obj) {};
+	virtual void CollideWithSphere(Sphere* obj) {};
+	virtual void CollideWithBox(Box* obj) {};
 	
 protected:
 	Rigidbody * m_body1;

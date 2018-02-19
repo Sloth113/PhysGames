@@ -35,6 +35,6 @@ void Spring::debug()
 
 void Spring::makeGizmo()
 {
-		
+	aie::Gizmos::add2DLine(m_body1->toWorld(m_contact1), m_body2->toWorld(m_contact2), glm::vec4(0.5, 0.5, 0.5, 1));
 }
 

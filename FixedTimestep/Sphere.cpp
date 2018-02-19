@@ -102,8 +102,16 @@ void Sphere::CollideWithSphere(Sphere * obj)
 	if(intersection > 0){
 		glm::vec2 contactForce = 0.5f * (distance - (this->getRadius() + obj->getRadius()))*delta / distance;
 
-		this->setPosition(this->getPosition() + contactForce);
-		obj->setPosition(obj->getPosition() - contactForce);
+		if (!this->isKinematic() && !obj->isKinematic()) {
+			this->setPosition(this->getPosition() + contactForce);
+			obj->setPosition(obj->getPosition() - contactForce);
+		}
+		else if (!this->isKinematic()) {
+			this->setPosition(this->getPosition() + (contactForce *2.0f));
+		}
+		else if (!obj->isKinematic()) {
+			obj->setPosition(obj->getPosition() - (contactForce * 2.0f));
+		}
 		
 		resolveCollisions(obj, 0.5f * (getPosition() + obj->getPosition()));;
 	}

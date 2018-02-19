@@ -23,14 +23,17 @@ bool FixedTimestepApp::startup() {
 	// the following path would be used instead: "./font/consolas.ttf"
 	m_font = new aie::Font("../bin/font/consolas.ttf", 32);
 
-	std::srand(std::time(NULL));
+	std::srand((int)std::time(NULL));
 	
 	//SphereWallsCollisions();
 	//TestingScene(); //circle intersection 
 	//CradleTest();
 	//Overload();
 	//AllTheShapes();
-	
+	//SpringTests();
+	Platformer();
+
+	/*
 	m_physicsScene = new PhysicsScene();
 	//m_physicsScene->setGravity(glm::vec2(0, -50.0f));
 	m_physicsScene->setTimeStep(0.01f);
@@ -43,7 +46,7 @@ bool FixedTimestepApp::startup() {
 
 	m_physicsScene->addActor(box1);
 	m_physicsScene->addActor(box2);
-
+	*/
 	/*float aspRatio = 16 / 9.f;
 	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
 	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
@@ -78,6 +81,7 @@ void FixedTimestepApp::update(float deltaTime) {
 	
 	aie::Gizmos::clear();
 	//Spawn balls
+	
 	if (input->wasMouseButtonPressed(aie::INPUT_MOUSE_BUTTON_LEFT)) {
 		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
 
@@ -159,11 +163,79 @@ void FixedTimestepApp::AllTheShapes()
 	m_physicsScene->addActor(right);
 }
 
-/*
+void FixedTimestepApp::SpringTests()
+{
+	m_physicsScene = new PhysicsScene();
+	//m_physicsScene->setGravity(glm::vec2(0, -50.0f));
+	m_physicsScene->setTimeStep(0.01f);
+
+	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 10, 5.0f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(bigBall);
+
+	Sphere * oldBall = new Sphere(glm::vec2(20, 55), glm::vec2(0, 0), 5, 2.0f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->addActor(oldBall);
+
+	Spring * attach = new Spring(bigBall, oldBall, 12, 10.0f, 0);
+	m_physicsScene->addActor(attach);
+
+	for (int i = 0; i < 20; i++) {
+		Sphere * nextBall = new Sphere(glm::vec2(20 + i * 5, 60), glm::vec2(0, 0), 5, 2.0f, glm::vec4(1, 0, 0, 1));
+		nextBall->setElasticity(0.5f);
+		m_physicsScene->addActor(nextBall);
+		m_physicsScene->addActor(new Spring(oldBall, nextBall, 4, 1000, 0));
+		oldBall = nextBall;
+	}
+	oldBall->setKinematic(true);
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
+
+
+}
+
+void FixedTimestepApp::Platformer()
+{
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setGravity(glm::vec2(0, -100));
+	m_physicsScene->setTimeStep(0.01f);
+	//Player
+	PlatformPlayer * player = new PlatformPlayer(10, glm::vec2(10, 100), 1000);
+	player->applyForce(glm::vec2(10, 0), glm::vec2(0, 0));
+	player->setLinearDrag(0);//doesnt slow down?
+	m_physicsScene->addActor(player);
+
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	bottom->setElasticity(0.1f);
+	top->setElasticity(0.1f);
+	left->setElasticity(0.1f);
+	right->setElasticity(0.1f);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
+
+}
+
+
 void FixedTimestepApp::SphereWallsCollisions()
 {
 	m_physicsScene = new PhysicsScene();
-	//m_physicsScene->setGravity(glm::vec2(0, -9.8f));
+	m_physicsScene->setGravity(glm::vec2(0, -9.8f));
 	m_physicsScene->setTimeStep(0.01f);
 
 	//Balls towards planes
@@ -190,11 +262,11 @@ void FixedTimestepApp::SphereWallsCollisions()
 	//m_physicsScene->addActor(ball6);
 
 	//ball1->applyForceToActor(ball2, glm::vec2(20, 0));
-	ball1->applyForce(glm::vec2(100, 0));
-	ball2->applyForce(glm::vec2(0, -100));
-	ball3->applyForce(glm::vec2(0, -100));
-	ball4->applyForce(glm::vec2(0, 10));
-	ball5->applyForce(glm::vec2(-230, 120));
+	ball1->applyForce(glm::vec2(100, 0), glm::vec2(0));
+	ball2->applyForce(glm::vec2(0, -100), glm::vec2(0));
+	ball3->applyForce(glm::vec2(0, -100), glm::vec2(0));
+	ball4->applyForce(glm::vec2(0, 10), glm::vec2(0));
+	ball5->applyForce(glm::vec2(-230, 120), glm::vec2(0));
 
 	//ball4->setStatic(true);
 	//ball3->applyForce(glm::vec2(-40, 0));
@@ -249,9 +321,9 @@ void FixedTimestepApp::TestingScene()
 	Sphere* ball1 = new Sphere(glm::vec2(50, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
 	Sphere* ball2 = new Sphere(glm::vec2(56, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
 	Sphere* ball3 = new Sphere(glm::vec2(100, 50), glm::vec2(0, 0), 4.0f, 4, glm::vec4(1, 1, 1, 1));
-	ball3->setStatic(true);
-	ball1->applyForce(glm::vec2(150, 1));
-	ball2->applyForce(glm::vec2(100, 4));
+	ball3->setKinematic(true);
+	ball1->applyForce(glm::vec2(150, 1), glm::vec2(0));
+	ball2->applyForce(glm::vec2(100, 4), glm::vec2(0));
 
 	m_physicsScene->addActor(ball1);
 	m_physicsScene->addActor(ball2);	
@@ -283,7 +355,7 @@ void FixedTimestepApp::CradleTest()
 	Sphere* ball4 = new Sphere(glm::vec2(80, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
 	Sphere* ball5 = new Sphere(glm::vec2(90, 50), glm::vec2(0, 0), 1.0f, 4, glm::vec4(1, 0, 0, 1));
 
-	ball1->applyForce(glm::vec2(200, 0));
+	ball1->applyForce(glm::vec2(200, 0), glm::vec2(0));
 
 	m_physicsScene->addActor(ball1);
 	m_physicsScene->addActor(ball2);
@@ -318,7 +390,7 @@ void FixedTimestepApp::Overload()
 		if (rand() % 10 == 0) {
 			balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 10.0f, 3, glm::vec4(0.5f, 0.5f, 0.5f, 1));
 			m_physicsScene->addActor(balls[i]);
-			balls[i]->setStatic(true); //WORK OUT STATIC COLLISINOS 
+			balls[i]->setKinematic(true); //WORK OUT STATIC COLLISINOS 
 		}
 		else {
 			balls[i] = new Sphere(glm::vec2(rand() % 190 + 5, rand() % 100 + 5), glm::vec2(0, 0), 10.0f, 3, glm::vec4(1, 1, 1, 1));
@@ -329,6 +401,5 @@ void FixedTimestepApp::Overload()
 	}
 	
 }
-*/
 
 

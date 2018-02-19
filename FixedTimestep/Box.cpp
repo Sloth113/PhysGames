@@ -189,7 +189,7 @@ void Box::CollideWithSphere(Sphere * obj)
 			obj->setPosition(obj->getPosition() - penVec*0.5f); 
 		} else if (!this->isKinematic()) {
 			this->setPosition(this->getPosition() + penVec); 
-		} else { 
+		} else if (!obj->isKinematic()){ 
 			obj->setPosition(obj->getPosition() - penVec); 
 		}
 		resolveCollisions(obj, contact, direction);
@@ -223,8 +223,17 @@ void Box::CollideWithBox(Box * obj)
 	//		this->setPosition(this->getPosition() - contactForce);
 	//		obj->setPosition(obj->getPosition() + contactForce);
 	//}
-		this->setPosition(this->getPosition() - (norm * pen * 0.5f));
-		obj->setPosition(obj->getPosition() + norm * pen * 0.5f);
+		if (!this->isKinematic() && !obj->isKinematic()) {
+			this->setPosition(this->getPosition() - (norm * pen * 0.5f));
+			obj->setPosition(obj->getPosition() + norm * pen * 0.5f);
+		}
+		else if (!this->isKinematic()) {
+			this->setPosition(this->getPosition() - (norm * pen));
+		}
+		else if(!obj->isKinematic()) {
+			obj->setPosition(obj->getPosition() + norm * pen);
+		}
+
 		this->resolveCollisions(obj, contact / float(numContacts), &norm);
 		
 
