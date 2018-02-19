@@ -35,6 +35,15 @@ bool FixedTimestepApp::startup() {
 	//m_physicsScene->setGravity(glm::vec2(0, -50.0f));
 	m_physicsScene->setTimeStep(0.01f);
 
+	bigBall = new Sphere(glm::vec2(10, 50), glm::vec2(0, 0), 10, 5.0f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(bigBall);
+
+	Box * box1 = new Box(glm::vec2(50, 30), glm::vec2(0, 0), 45, 4, glm::vec2(5, 5), glm::vec4(0, 1, 1, 1));
+	Box * box2 = new Box(glm::vec2(52, 28), glm::vec2(0, 0), 45, 4, glm::vec2(5, 5), glm::vec4(1, 0, 1, 1));
+
+	m_physicsScene->addActor(box1);
+	m_physicsScene->addActor(box2);
+
 	/*float aspRatio = 16 / 9.f;
 	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
 	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
@@ -71,8 +80,12 @@ void FixedTimestepApp::update(float deltaTime) {
 	//Spawn balls
 	if (input->wasMouseButtonPressed(aie::INPUT_MOUSE_BUTTON_LEFT)) {
 		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+
 		//m_physicsScene->addActor(new Sphere(click, glm::vec2(0, 0), 1.0f, 3, glm::vec4(0, 1, 0, 1)));
-		m_physicsScene->addActor(new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(2, 2), glm::vec4(0, 0, 1, 1)));
+		Box * newBox = new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(2, 2), glm::vec4(0, 0, 1, 1));
+		newBox->setKinematic(true);
+		
+		m_physicsScene->addActor(newBox);
 	}
 	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_RIGHT )&& bigBall != nullptr) {
 		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);

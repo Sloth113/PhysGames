@@ -2,7 +2,7 @@
 
 
 
-Rigidbody::Rigidbody(ShapeType shapeID, glm::vec2 position, glm::vec2 velocity, float rotation, float mass) :PhysicsObject(shapeID), m_position(position), m_velocity(velocity), m_rotation(rotation), m_mass(mass), m_angularVelocity(0), m_linearDrag(0.3f), m_angularDrag(0.3f), m_elasticity(0.8f), m_moment(1)
+Rigidbody::Rigidbody(ShapeType shapeID, glm::vec2 position, glm::vec2 velocity, float rotation, float mass) :PhysicsObject(shapeID), m_position(position), m_velocity(velocity), m_rotation(rotation*(3.141592f / 180.0f)), m_mass(mass), m_angularVelocity(0), m_linearDrag(0.3f), m_angularDrag(0.3f), m_elasticity(0.8f), m_moment(1)
 {
 }
 
@@ -12,7 +12,7 @@ Rigidbody::~Rigidbody()
 
 void Rigidbody::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
-	if (!m_static) {
+	if (!m_isKinematic) {
 
 		m_position += m_velocity * timeStep;
 		//m_velocity += gravity * timeStep;
@@ -23,7 +23,8 @@ void Rigidbody::fixedUpdate(glm::vec2 gravity, float timeStep)
 		m_angularVelocity -= m_angularVelocity * m_angularDrag * timeStep;
 
 		if (glm::length(m_velocity) < MIN_LINEAR_THRESHOLD) {
-			m_velocity = glm::vec2(0, 0);
+			//if(glm::length(gravity) != 0 && glm::length(m_velocity) < glm::length(gravity) * m_linearDrag * timeStep)
+				m_velocity = glm::vec2(0, 0);
 		}
 		if (glm::abs(m_angularVelocity) < MIN_ROTATION_THRESHOL) {
 			m_angularVelocity = 0;
@@ -32,6 +33,7 @@ void Rigidbody::fixedUpdate(glm::vec2 gravity, float timeStep)
 	}
 	else {
 		m_velocity = glm::vec2(0, 0);
+		return; 
 	}
 }
 
@@ -52,11 +54,7 @@ void Rigidbody::applyForceToActor(Rigidbody * actor2, glm::vec2 force)
 	applyForce(-force);
 }
 */
-void Rigidbody::setStatic(bool set)
-{
-	m_static = set;
-	m_mass = 9999999999;
-}
+
 
 void Rigidbody::resolveCollisions(Rigidbody* actor2, glm::vec2 contact, glm::vec2* collisionNormal) 
 {

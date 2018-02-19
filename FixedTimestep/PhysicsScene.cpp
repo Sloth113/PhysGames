@@ -129,6 +129,8 @@ void PhysicsScene::checkForCollision() {
 			PhysicsObject* object1 = m_actors[outer];
 			PhysicsObject* object2 = m_actors[inner];
 
+			if (object1->getShapeID() < 0 || object2->getShapeID() < 0)
+				continue;
 			object1->Collide(object2);
 			//int shapeId1 = object1->getShapeID();
 			//int shapeId2 = object2->getShapeID();

@@ -180,6 +180,18 @@ void Box::CollideWithSphere(Sphere * obj)
 		// average, and convert back into world coords
 		contact = m_position + (1.0f / numContacts) * (m_localX *contact.x + m_localY*contact.y);
 
+
+		float pen = obj->getRadius() - glm::length(contact - obj->getPosition());
+		glm::vec2 penVec = glm::normalize(contact - obj->getPosition()) * pen;
+		// move each shape away in the direction of penitration 
+		if (!this->isKinematic() && !obj->isKinematic()) {
+			this->setPosition(this->getPosition() + penVec*0.5f);
+			obj->setPosition(obj->getPosition() - penVec*0.5f); 
+		} else if (!this->isKinematic()) {
+			this->setPosition(this->getPosition() + penVec); 
+		} else { 
+			obj->setPosition(obj->getPosition() - penVec); 
+		}
 		resolveCollisions(obj, contact, direction);
 
 	}
@@ -198,20 +210,24 @@ void Box::CollideWithBox(Box * obj)
 	int numContacts = 0;
 
 
-	this->checkBoxCorners(*obj, contact, numContacts, pen, norm, contactForce1);
+	this->checkBoxCorners(*obj, contact, numContacts, pen, norm);
 	//this->checkBoxCorners(*obj, contact, numContacts, norm, contactForce1);
 
-	if (obj->checkBoxCorners(*this, contact, numContacts, pen, norm, contactForce2)) {
+	if (obj->checkBoxCorners(*this, contact, numContacts, pen, norm)) {
 		norm = -norm;
 	}
 
-	//if (pen > 0) {
-	if (numContacts > 0) {
-		glm::vec2 contactForce = 0.5f * norm * pen;//0.5f*(contactForce1 - contactForce2);
-			this->setPosition(this->getPosition() - contactForce);
-			obj->setPosition(obj->getPosition() + contactForce);
-		//}
+	if (pen > 0) {
+	//if (numContacts > 0) {
+	//	glm::vec2 contactForce = 0.5f * norm * pen;//0.5f*(contactForce1 - contactForce2);
+	//		this->setPosition(this->getPosition() - contactForce);
+	//		obj->setPosition(obj->getPosition() + contactForce);
+	//}
+		this->setPosition(this->getPosition() - (norm * pen * 0.5f));
+		obj->setPosition(obj->getPosition() + norm * pen * 0.5f);
 		this->resolveCollisions(obj, contact / float(numContacts), &norm);
+		
+
 	}
 }
 
@@ -268,8 +284,8 @@ void Box::CollideWithBox(Box * obj)
 	return (penetration != 0);
 }*/
 
-//c
-bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContacts, float & pen, glm::vec2 & edgeNormal, glm::vec2& contactForce)
+//-
+bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContacts, float & pen, glm::vec2 & edgeNormal)
 {
 	float minX, maxX, minY, maxY;
 	float boxW = box.m_extents.x * 2;
@@ -301,7 +317,7 @@ bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContact
 		}
 	}
 
-	if (maxX <-m_extents.x || minX >m_extents.x || maxY<-m_extents.y || minY >m_extents.y)
+	if (maxX <= -m_extents.x || minX >=m_extents.x || maxY<=-m_extents.y || minY >=m_extents.y)
 		return false;
 	if (numLocalContacts == 0)
 		return false;
@@ -312,7 +328,7 @@ bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContact
 
 	numContacts++;
 
-	float pen0 = m_extents.x - minX;
+	float pen0 = m_extents.x - minX ;
 	if (pen0 > 0 && (pen0 < pen || pen == 0)) {
 		edgeNormal = m_localX;
 		pen = pen0;
@@ -326,7 +342,7 @@ bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContact
 		res = true;
 	}
 
-	pen0 = m_extents.y - minY; 
+	pen0 = m_extents.y - minY;
 	if (pen0 > 0 && (pen0 < pen || pen == 0)) { 
 		edgeNormal = m_localY; 
 		pen = pen0; 
@@ -338,7 +354,6 @@ bool Box::checkBoxCorners(const Box & box, glm::vec2 & contact, int & numContact
 		pen = pen0;
 		res = true; 
 	} 
-	contactForce = penetration * edgeNormal;
 	return res;
 }
 
