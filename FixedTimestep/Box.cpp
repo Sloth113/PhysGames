@@ -18,13 +18,13 @@ void Box::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
 	
 	Rigidbody::fixedUpdate(gravity, timeStep);
-	
 	//store the local ax
-	float cs = cosf(m_rotation); 
-	float sn = sinf(m_rotation); 
-	
+	float cs = cosf(m_rotation);
+	float sn = sinf(m_rotation);
+
 	m_localX = glm::normalize(glm::vec2(cs, sn));
 	m_localY = glm::normalize(glm::vec2(-sn, cs));
+
 	
 }
 
@@ -123,7 +123,8 @@ void Box::CollideWithPlane(Plane * obj)
 		float mass0 = 1.0f / (1.0f / m_mass + (r*r) / m_moment);
 
 		applyForce(acceleration * mass0, localContact);
-		this->setPosition(this->getPosition() - obj->getNormal() * penetration);
+		if(!this->isKinematic())
+			this->setPosition(this->getPosition() - obj->getNormal() * penetration);
 	}
 }
 
@@ -135,12 +136,12 @@ void Box::CollideWithSphere(Sphere * obj)
 	int numContacts = 0;
 	glm::vec2 contact(0, 0); // contact is in our box coordinates
 
-							 // check the four corners to see if any of them are inside the circle
+	 // check the four corners to see if any of them are inside the circle
 	for (float x = -w2; x <= w2; x += this->getWidth()) {
 		for (float y = -h2; y <= h2; y += this->getHeight()) {
 			glm::vec2 p = x * m_localX + y * m_localY;
 			glm::vec2 dp = p - circlePos;
-			if (dp.x*dp.x + dp.y*dp.y < obj->getRadius()*obj->getRadius()) {
+			if (dp.x*dp.x + dp.y*dp.y <= obj->getRadius()*obj->getRadius()) {
 				numContacts++;
 				contact += glm::vec2(x, y);
 			}
@@ -189,6 +190,7 @@ void Box::CollideWithSphere(Sphere * obj)
 			obj->setPosition(obj->getPosition() - penVec*0.5f); 
 		} else if (!this->isKinematic()) {
 			this->setPosition(this->getPosition() + penVec); 
+			
 		} else if (!obj->isKinematic()){ 
 			obj->setPosition(obj->getPosition() - penVec); 
 		}
@@ -204,7 +206,6 @@ void Box::CollideWithBox(Box * obj)
 	glm::vec2 boxPos = obj->getPosition() - this->getPosition();
 
 	glm::vec2 norm(0, 0);
-	glm::vec2 contactForce1, contactForce2;
 	glm::vec2 contact(0, 0); 
 	float pen = 0; 
 	int numContacts = 0;

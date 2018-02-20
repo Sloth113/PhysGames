@@ -12,7 +12,7 @@ public:
 	virtual void fixedUpdate(glm::vec2 gravity, float timeStep);
 	virtual void debug();
 	void applyForce(glm::vec2 force, glm::vec2 pos);
-	glm::vec2 toWorld(glm::vec2 contact) { return m_position; }
+	virtual glm::vec2 toWorld(glm::vec2 contact) { return m_position; }
 	//void applyForceToActor(Rigidbody* actor2, glm::vec2 force);
 
 
@@ -48,5 +48,8 @@ protected:
 	float m_angularDrag;
 	float m_elasticity;
 	bool m_isKinematic = false;
+
+	glm::vec2 m_localX;
+	glm::vec2 m_localY;
 };
 

@@ -12,6 +12,7 @@ public:
 	virtual void fixedUpdate(glm::vec2 gravity, float timeStep);
 	virtual void makeGizmo();
 	virtual bool checkCollision(PhysicsObject* pOther);
+	virtual glm::vec2 toWorld(glm::vec2 contact) { return m_position + m_localX * contact.x + m_localY * contact.y; }
 
 	glm::vec2 getSize() { return m_extents; }
 	float getWidth() {	return m_extents.x * 2;	}
@@ -31,8 +32,6 @@ protected:
 
 	glm::vec2 m_extents;
 	
-	glm::vec2 m_localX;
-	glm::vec2 m_localY;
 
 	std::list<glm::vec2> points;
 

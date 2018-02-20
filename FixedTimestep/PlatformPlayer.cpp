@@ -16,7 +16,8 @@ void PlatformPlayer::fixedUpdate(glm::vec2 gravity, float timeStep)
 
 	if ((input->wasKeyPressed(aie::INPUT_KEY_W) || input->wasKeyPressed(aie::INPUT_KEY_SPACE))) {
 		//jump
-		applyForce(glm::vec2(0, m_jumpHeight), glm::vec2(0, 0));
+		if(m_velocity.y < 0)
+			applyForce(glm::vec2(0, m_jumpHeight), glm::vec2(0, 0));
 	}
 
 }

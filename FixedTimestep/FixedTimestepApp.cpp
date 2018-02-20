@@ -31,7 +31,8 @@ bool FixedTimestepApp::startup() {
 	//Overload();
 	//AllTheShapes();
 	//SpringTests();
-	Platformer();
+	//Platformer();
+	BallandCorner();
 
 	/*
 	m_physicsScene = new PhysicsScene();
@@ -175,14 +176,14 @@ void FixedTimestepApp::SpringTests()
 	Sphere * oldBall = new Sphere(glm::vec2(20, 55), glm::vec2(0, 0), 5, 2.0f, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->addActor(oldBall);
 
-	Spring * attach = new Spring(bigBall, oldBall, 12, 10.0f, 0);
+	Spring * attach = new Spring(bigBall, oldBall, 1, 10.0f, 0, glm::vec2(5, 0), glm::vec2(-2,0));
 	m_physicsScene->addActor(attach);
 
 	for (int i = 0; i < 20; i++) {
 		Sphere * nextBall = new Sphere(glm::vec2(20 + i * 5, 60), glm::vec2(0, 0), 5, 2.0f, glm::vec4(1, 0, 0, 1));
 		nextBall->setElasticity(0.5f);
 		m_physicsScene->addActor(nextBall);
-		m_physicsScene->addActor(new Spring(oldBall, nextBall, 4, 1000, 0));
+		m_physicsScene->addActor(new Spring(oldBall, nextBall, 1, 1000, 0, glm::vec2(2,0), glm::vec2(-2,0)));
 		oldBall = nextBall;
 	}
 	oldBall->setKinematic(true);
@@ -207,7 +208,7 @@ void FixedTimestepApp::Platformer()
 	m_physicsScene->setGravity(glm::vec2(0, -100));
 	m_physicsScene->setTimeStep(0.01f);
 	//Player
-	PlatformPlayer * player = new PlatformPlayer(10, glm::vec2(10, 100), 1000);
+	PlatformPlayer * player = new PlatformPlayer(10, glm::vec2(10, 100), 500);
 	player->applyForce(glm::vec2(10, 0), glm::vec2(0, 0));
 	player->setLinearDrag(0);//doesnt slow down?
 	m_physicsScene->addActor(player);
@@ -219,16 +220,58 @@ void FixedTimestepApp::Platformer()
 	Plane* left = new Plane(glm::vec2(1, 0), 2);
 	Plane* right = new Plane(glm::vec2(1, 0), 198);
 
-	bottom->setElasticity(0.1f);
-	top->setElasticity(0.1f);
-	left->setElasticity(0.1f);
-	right->setElasticity(0.1f);
+	bottom->setElasticity(1.1f);
+	top->setElasticity(1.1f);
+	left->setElasticity(1.1f);
+	right->setElasticity(1.1f);
 
 	m_physicsScene->addActor(bottom);
 	m_physicsScene->addActor(top);
 	m_physicsScene->addActor(left);
 	m_physicsScene->addActor(right);
 
+	//Level bits
+	Box * platform1 = new Box(glm::vec2(10, 50), glm::vec2(0, 0), -20, 100, glm::vec2(10, 2), glm::vec4(0, 1, 0, 1));
+	platform1->setElasticity(1);
+	platform1->setKinematic(true);
+	m_physicsScene->addActor(platform1);
+
+	Sphere * anchor1 = new Sphere(glm::vec2(50, 80), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
+	anchor1->setKinematic(true);
+	Box * movingPlat = new Box(glm::vec2(45, 75), glm::vec2(0, 0), -10, 1, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Spring * attach1 = new Spring(anchor1, movingPlat, 20, 15, 0.1f, glm::vec2(0,0), glm::vec2(-10,0));
+	Spring * attach2 = new Spring(anchor1, movingPlat, 20, 15, 0.1f, glm::vec2(0, 0), glm::vec2(10, 0));
+	Spring * attach3 = new Spring(player, movingPlat, 20, 15, 0.1f, glm::vec2(0, 0), glm::vec2(10, 0));
+	m_physicsScene->addActor(anchor1);
+	m_physicsScene->addActor(movingPlat);
+	m_physicsScene->addActor(attach1);
+	m_physicsScene->addActor(attach2);
+	//m_physicsScene->addActor(attach3);
+
+}
+
+void FixedTimestepApp::BallandCorner()
+{
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setTimeStep(0.01f);
+
+	//Bounds
+	float aspRatio = 16 / 9.f;
+	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
+	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* left = new Plane(glm::vec2(1, 0), 2);
+	Plane* right = new Plane(glm::vec2(1, 0), 198);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
+
+	Box * box1 = new Box(glm::vec2(50, 50), glm::vec2(0, 0), 0, 10, glm::vec2(4, 4), glm::vec4(1, 1, 1, 1));
+	Sphere * ball1 = new Sphere(glm::vec2(54, 70), glm::vec2(0, -10), 10, 3, glm::vec4(1, 1, 1, 1));
+	box1->setKinematic(true);
+	m_physicsScene->addActor(box1);
+	m_physicsScene->addActor(ball1);
 }
 
 

@@ -2,7 +2,7 @@
 
 
 
-Plane::Plane():PhysicsObject(ShapeType::PLANE), m_distanceToOrigin(0), m_normal(glm::vec2(0,1))
+Plane::Plane():PhysicsObject(ShapeType::PLANE), m_distanceToOrigin(0), m_normal(glm::vec2(0,1)), m_elasticity(1)
 {
 }
 

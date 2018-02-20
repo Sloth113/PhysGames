@@ -16,6 +16,13 @@ void Sphere::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
 	Rigidbody::fixedUpdate(gravity, timeStep);
 
+	//store the local ax
+	float cs = cosf(m_rotation);
+	float sn = sinf(m_rotation);
+
+	m_localX = glm::normalize(glm::vec2(cs, sn));
+	m_localY = glm::normalize(glm::vec2(-sn, cs));
+
 }
 
 void Sphere::makeGizmo()

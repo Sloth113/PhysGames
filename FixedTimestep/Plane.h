@@ -30,7 +30,7 @@ public:
 protected: 
 	glm::vec2 m_normal; 
 	float m_distanceToOrigin;
-	float m_elasticity;
+	float m_elasticity = 1;
 
 };
 

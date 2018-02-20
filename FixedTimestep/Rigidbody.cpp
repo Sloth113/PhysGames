@@ -2,8 +2,9 @@
 
 
 
-Rigidbody::Rigidbody(ShapeType shapeID, glm::vec2 position, glm::vec2 velocity, float rotation, float mass) :PhysicsObject(shapeID), m_position(position), m_velocity(velocity), m_rotation(rotation*(3.141592f / 180.0f)), m_mass(mass), m_angularVelocity(0), m_linearDrag(0.3f), m_angularDrag(0.3f), m_elasticity(0.8f), m_moment(1)
+Rigidbody::Rigidbody(ShapeType shapeID, glm::vec2 position, glm::vec2 velocity, float rotation, float mass) :PhysicsObject(shapeID), m_position(position), m_velocity(velocity), m_rotation(rotation*(3.141592f / 180.0f)), m_mass(mass), m_angularVelocity(0), m_linearDrag(0.0f), m_angularDrag(0.0f), m_elasticity(1), m_moment(1)
 {
+
 }
 
 Rigidbody::~Rigidbody()
@@ -76,16 +77,18 @@ void Rigidbody::resolveCollisions(Rigidbody* actor2, glm::vec2 contact, glm::vec
 
 	if (v1 > v2) // they're moving closer
 	{
-		// calculate the effective mass at contact point for each object 
-		// ie how much the contact point will move due to the force applied.
-		float mass1 = 1.0f / (1.0f / m_mass + (r1*r1) / m_moment); 
-		float mass2 = 1.0f / (1.0f / actor2->m_mass + (r2*r2) / actor2->m_moment); 
+			// calculate the effective mass at contact point for each object 
+			// ie how much the contact point will move due to the force applied.
+			float mass1 = 1.0f / (1.0f / m_mass + (r1*r1) / m_moment);
+			float mass2 = 1.0f / (1.0f / actor2->m_mass + (r2*r2) / actor2->m_moment);
 
-		float elasticity = (m_elasticity + actor2->getElasticity()) / 2.0f; 
-		glm::vec2 force = (1.0f + elasticity)*mass1*mass2 / (mass1 + mass2)*(v1 - v2)*normal; 
-		//apply equal and opposite forces
-		applyForce(-force, contact - m_position); 
-		actor2->applyForce(force, contact - actor2->m_position);
+			float elasticity = (m_elasticity + actor2->getElasticity()) / 2.0f;
+			glm::vec2 force = (1.0f + elasticity)*mass1*mass2 / (mass1 + mass2)*(v1 - v2)*normal;
+
+			//apply equal and opposite forces
+			applyForce(-force, contact - m_position);
+			actor2->applyForce(force, contact - actor2->m_position);
+		
 	}
 
 }

@@ -12,6 +12,7 @@ public:
 	virtual void makeGizmo();
 	virtual bool checkCollision(PhysicsObject* pOther);
 	virtual void debug();
+	virtual glm::vec2 toWorld(glm::vec2 contact) { return m_position +m_localX * contact.x + m_localY * contact.y; }
 	float getRadius() { return m_radius; }
 	glm::vec4 getColour() { return m_colour; }
 	
