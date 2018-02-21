@@ -36,7 +36,8 @@ void Box::makeGizmo()
 	glm::vec2 p4 = m_position + m_localX * m_extents.x + m_localY * m_extents.y; 
 	
 	aie::Gizmos::add2DTri(p1, p2, p4, m_colour);
-	aie::Gizmos::add2DTri(p1, p4, p3, glm::vec4(1,1,1,1));
+	//aie::Gizmos::add2DTri(p1, p4, p3, glm::vec4(1,1,1,1));
+	aie::Gizmos::add2DTri(p1, p4, p3, m_colour);
 
 //	for each(glm::vec2 pos in points) {
 //		aie::Gizmos::add2DCircle(pos, 2, 5, glm::vec4(1, 1, 1, 1));

@@ -95,8 +95,10 @@ void PhysicsScene::debugScene()
 	float sysEnergy = 0;
 	for (auto pActor : m_actors) {
 		Rigidbody * cast = dynamic_cast<Rigidbody * >(pActor);
-		if(cast != nullptr)
-			sysEnergy += (glm::dot(cast->getVelocity(), cast->getVelocity())) * cast->getMass() /2.0f;
+		if (cast != nullptr) {
+			sysEnergy += (glm::dot(cast->getVelocity(), cast->getVelocity())) * cast->getMass() / 2.0f;//Linear
+			//sysEnergy += (cast->getMoment() * cast->getAngularVel()//Rotational
+		}
 		cast = nullptr;
 		/*
 		std::cout << count << " : ";

@@ -24,7 +24,7 @@ bool FixedTimestepApp::startup() {
 	m_font = new aie::Font("../bin/font/consolas.ttf", 32);
 
 	std::srand((int)std::time(NULL));
-	
+	ballSize = 0;
 	//SphereWallsCollisions();
 	//TestingScene(); //circle intersection 
 	//CradleTest();
@@ -82,7 +82,7 @@ void FixedTimestepApp::update(float deltaTime) {
 	
 	aie::Gizmos::clear();
 	//Spawn balls
-	
+	/*
 	if (input->wasMouseButtonPressed(aie::INPUT_MOUSE_BUTTON_LEFT)) {
 		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
 
@@ -96,6 +96,18 @@ void FixedTimestepApp::update(float deltaTime) {
 		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
 		
 		bigBall->applyForce(glm::vec2( glm::normalize(click - bigBall->getPosition())) * 100.0f, glm::vec2(0,0));
+	}*/
+
+	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_LEFT)) {
+		ballSize += deltaTime * 5;
+		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+		aie::Gizmos::add2DCircle(click, ballSize, 32, glm::vec4(1, 0, 1, 1));
+	}
+	if (input->wasMouseButtonReleased(aie::INPUT_MOUSE_BUTTON_LEFT) && ballSize > 0) {
+		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize * ballSize, ballSize, glm::vec4(0, 0, 1, 1));
+		m_physicsScene->addActor(ball);
+		ballSize = 0;
 	}
 
 
@@ -211,19 +223,26 @@ void FixedTimestepApp::Platformer()
 	PlatformPlayer * player = new PlatformPlayer(10, glm::vec2(10, 100), 500);
 	player->applyForce(glm::vec2(10, 0), glm::vec2(0, 0));
 	player->setLinearDrag(0);//doesnt slow down?
-	m_physicsScene->addActor(player);
+	//m_physicsScene->addActor(player);
 
-	//Bounds
+	//Bounds NOW IN SOLID FORM
 	float aspRatio = 16 / 9.f;
-	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
-	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
-	Plane* left = new Plane(glm::vec2(1, 0), 2);
-	Plane* right = new Plane(glm::vec2(1, 0), 198);
+	Box* bottom =	new Box(glm::vec2(100, 0), glm::vec2(0, 0), 0, 100, glm::vec2(100, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* top =		new Box(glm::vec2(100, 200 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(100, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* left =		new Box(glm::vec2(0, 100 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(10, 100), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* right =	new Box(glm::vec2(200, 100 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(10, 100), glm::vec4(0.5f, 0.5f, 0.5f, 1));
 
-	bottom->setElasticity(1.1f);
-	top->setElasticity(1.1f);
-	left->setElasticity(1.1f);
-	right->setElasticity(1.1f);
+
+	bottom->setKinematic(true);
+	top->setKinematic(true);
+	left->setKinematic(true);
+	right->setKinematic(true);
+
+
+	bottom->setElasticity(0.9f);
+	top->setElasticity(0.9f);
+	left->setElasticity(0.9f);
+	right->setElasticity(0.9f);
 
 	m_physicsScene->addActor(bottom);
 	m_physicsScene->addActor(top);
@@ -238,15 +257,39 @@ void FixedTimestepApp::Platformer()
 
 	Sphere * anchor1 = new Sphere(glm::vec2(50, 80), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
 	anchor1->setKinematic(true);
-	Box * movingPlat = new Box(glm::vec2(45, 75), glm::vec2(0, 0), -10, 1, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
-	Spring * attach1 = new Spring(anchor1, movingPlat, 20, 15, 0.1f, glm::vec2(0,0), glm::vec2(-10,0));
-	Spring * attach2 = new Spring(anchor1, movingPlat, 20, 15, 0.1f, glm::vec2(0, 0), glm::vec2(10, 0));
-	Spring * attach3 = new Spring(player, movingPlat, 20, 15, 0.1f, glm::vec2(0, 0), glm::vec2(10, 0));
-	m_physicsScene->addActor(anchor1);
-	m_physicsScene->addActor(movingPlat);
+	Sphere * anchor2 = new Sphere(glm::vec2(155, 80), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
+	anchor2->setKinematic(true);
+	Box * movingPlat1 = new Box(glm::vec2(65, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat2 = new Box(glm::vec2(90, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat3 = new Box(glm::vec2(115, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat4 = new Box(glm::vec2(140, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	movingPlat1->setLinearDrag(1.0f);
+	movingPlat2->setLinearDrag(1.0f);
+	movingPlat3->setLinearDrag(1.0f);
+	movingPlat4->setLinearDrag(1.0f);
+	movingPlat1->setAngularDrag(2.0f);
+	movingPlat2->setAngularDrag(2.0f);
+	movingPlat3->setAngularDrag(2.0f);
+	movingPlat4->setAngularDrag(2.0f);
+	Spring * attach1 = new Spring(anchor1, movingPlat1, 1, 1000, 0.1f, glm::vec2(0,0), glm::vec2(-10,0));
+	Spring * attach2 = new Spring(movingPlat1, movingPlat2, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach3 = new Spring(movingPlat2, movingPlat3, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach4 = new Spring(movingPlat3, movingPlat4, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach5 = new Spring(movingPlat4, anchor2, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(0, 0));
+	m_physicsScene->addActor(anchor1);	
+	m_physicsScene->addActor(anchor2);
+	m_physicsScene->addActor(movingPlat1);
+	m_physicsScene->addActor(movingPlat2);
+	m_physicsScene->addActor(movingPlat3);
+	m_physicsScene->addActor(movingPlat4);
 	m_physicsScene->addActor(attach1);
 	m_physicsScene->addActor(attach2);
-	//m_physicsScene->addActor(attach3);
+	m_physicsScene->addActor(attach3);
+	m_physicsScene->addActor(attach4);
+	m_physicsScene->addActor(attach5);
+
+	Sphere * ball1 = new Sphere(glm::vec2(65, 90), glm::vec2(0, 10), 10, 2, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->addActor(ball1);
 
 }
 
@@ -268,10 +311,10 @@ void FixedTimestepApp::BallandCorner()
 	m_physicsScene->addActor(right);
 
 	Box * box1 = new Box(glm::vec2(50, 50), glm::vec2(0, 0), 0, 10, glm::vec2(4, 4), glm::vec4(1, 1, 1, 1));
-	Sphere * ball1 = new Sphere(glm::vec2(54, 70), glm::vec2(0, -10), 10, 3, glm::vec4(1, 1, 1, 1));
-	box1->setKinematic(true);
+	Sphere * ball1 = new Sphere(glm::vec2(56, 70), glm::vec2(0, -10), 10, 3, glm::vec4(1, 1, 1, 1));
+	//box1->setKinematic(true);
 	m_physicsScene->addActor(box1);
-	m_physicsScene->addActor(ball1);
+	//m_physicsScene->addActor(ball1);
 }
 
 
