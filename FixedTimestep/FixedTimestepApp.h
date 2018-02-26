@@ -5,6 +5,7 @@
 #include <Gizmos.h>
 #include <glm\ext.hpp>
 #include "PhysicsScene.h"
+#include "Rigidbody.h"
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
@@ -45,5 +46,9 @@ protected:
 	Sphere* bigBall;
 	Box * testB;
 	float ballSize;
+	Rigidbody * m_hitThis;
+	Rigidbody * m_moveThis;
+	//glm::vec2 m_force;
+	glm::vec2 m_clickPos;
 
 };

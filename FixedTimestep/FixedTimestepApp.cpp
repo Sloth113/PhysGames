@@ -25,6 +25,9 @@ bool FixedTimestepApp::startup() {
 
 	std::srand((int)std::time(NULL));
 	ballSize = 0;
+	m_clickPos = glm::vec2(0, 0);
+	m_hitThis = nullptr;
+	m_moveThis = nullptr;
 	//SphereWallsCollisions();
 	//TestingScene(); //circle intersection 
 	//CradleTest();
@@ -97,24 +100,73 @@ void FixedTimestepApp::update(float deltaTime) {
 		
 		bigBall->applyForce(glm::vec2( glm::normalize(click - bigBall->getPosition())) * 100.0f, glm::vec2(0,0));
 	}*/
+	//Mouse
+	float aspRatio = 16 / 9.f;
+	glm::vec2 click = glm::vec2((float)input->getMouseX() / getWindowWidth() * 1000, (float)input->getMouseY() / getWindowHeight() * 1000 / aspRatio );
+	aie::Gizmos::add2DCircle(click, 1, 16, glm::vec4(0, 1, 1, 1));
 
+	//Spawn ball on left click 
 	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_LEFT)) {
-		ballSize += deltaTime * 5;
-		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
+		ballSize += deltaTime * 50;
 		aie::Gizmos::add2DCircle(click, ballSize, 32, glm::vec4(1, 0, 1, 1));
 	}
 	if (input->wasMouseButtonReleased(aie::INPUT_MOUSE_BUTTON_LEFT) && ballSize > 0) {
-		glm::vec2 click = glm::vec2((float)input->getMouseX() / (float)getWindowWidth() * 198, (float)input->getMouseY() / (float)getWindowHeight() * 115);
-		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize * ballSize, ballSize, glm::vec4(0, 0, 1, 1));
+		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
 		m_physicsScene->addActor(ball);
 		ballSize = 0;
+	}
+	//Right click to give objects force
+	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_RIGHT)) {
+		//if(m_clickPos == glm::vec2(0,0))
+			//m_clickPos = click;
+		if (m_hitThis == nullptr) {
+			for (PhysicsObject * p : (m_physicsScene->getActors())) {
+				if (Rigidbody * r = dynamic_cast<Rigidbody*>(p)) {
+					Sphere * tmp = new Sphere(click, glm::vec2(0, 0), 1, 1, glm::vec4(0, 1, 1, 1));
+					if (r->checkCollision(tmp)) {
+						m_hitThis = r;
+						m_clickPos = click;
+					}
+					delete tmp;
+				}
+			}
+		}
+		else {
+			aie::Gizmos::add2DLine(m_clickPos, click, glm::vec4(0, 1, 1, 1));
+		}
+	}
+	if (input->isMouseButtonUp(aie::INPUT_MOUSE_BUTTON_RIGHT) && m_clickPos != glm::vec2(0,0)) {
+		//m_hitThis->applyForce((click - m_clickPos) * 5.0f, click - m_hitThis->getPosition());
+		m_hitThis->applyForce((click - m_clickPos ) * 10.0f, m_clickPos - m_hitThis->getPosition());
+		m_clickPos = glm::vec2(0, 0);
+		m_hitThis = nullptr;
+	}
+	//Click and drag middle mouse to move items 
+	if (input->isMouseButtonDown(aie::INPUT_MOUSE_BUTTON_MIDDLE)) {
+		if (m_moveThis == nullptr) {
+			for (PhysicsObject * p : (m_physicsScene->getActors())) {
+				if (Rigidbody * r = dynamic_cast<Rigidbody*>(p)) {
+					Sphere * tmp = new Sphere(click, glm::vec2(0, 0), 1, 1, glm::vec4(0, 1, 1, 1));
+					if (r->checkCollision(tmp)) {
+						m_moveThis = r;
+					}
+					delete tmp;
+				}
+			}
+		}
+		else {
+			m_moveThis->setPosition(click);
+		}
+	}
+	if (input->isMouseButtonUp(aie::INPUT_MOUSE_BUTTON_MIDDLE) && m_moveThis != nullptr) {
+		m_moveThis = nullptr;
 	}
 
 
 	m_physicsScene->update(deltaTime);
 	m_physicsScene->updateGizmos();
 
-	m_physicsScene->debugScene();
+	//m_physicsScene->debugScene();
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -130,7 +182,7 @@ void FixedTimestepApp::draw() {
 
 	// draw your stuff here!
 	static float aspectRatio = 16 / 9.f;
-	aie::Gizmos::draw2D(glm::ortho<float>(0, 200, 0 / aspectRatio, 200 / aspectRatio, -1.0f, 1.0f));
+	aie::Gizmos::draw2D(glm::ortho<float>(0, 1000, 0, 1000 / aspectRatio, -1.0f, 1.0f));
 
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
@@ -227,10 +279,10 @@ void FixedTimestepApp::Platformer()
 
 	//Bounds NOW IN SOLID FORM
 	float aspRatio = 16 / 9.f;
-	Box* bottom =	new Box(glm::vec2(100, 0), glm::vec2(0, 0), 0, 100, glm::vec2(100, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* top =		new Box(glm::vec2(100, 200 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(100, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* left =		new Box(glm::vec2(0, 100 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(10, 100), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* right =	new Box(glm::vec2(200, 100 / aspRatio), glm::vec2(0, 0), 0, 100, glm::vec2(10, 100), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* bottom =	new Box(glm::vec2(500, 0), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* top =		new Box(glm::vec2(500, 1000 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 10), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* left =		new Box(glm::vec2(0, 500 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(10, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* right =	new Box(glm::vec2(1000, 500 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(10, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
 
 
 	bottom->setKinematic(true);
@@ -259,10 +311,10 @@ void FixedTimestepApp::Platformer()
 	anchor1->setKinematic(true);
 	Sphere * anchor2 = new Sphere(glm::vec2(155, 80), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
 	anchor2->setKinematic(true);
-	Box * movingPlat1 = new Box(glm::vec2(65, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
-	Box * movingPlat2 = new Box(glm::vec2(90, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
-	Box * movingPlat3 = new Box(glm::vec2(115, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
-	Box * movingPlat4 = new Box(glm::vec2(140, 80), glm::vec2(0, 0), 0, 100, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat1 = new Box(glm::vec2(65, 80), glm::vec2(0, 0), 0, 10, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat2 = new Box(glm::vec2(90, 80), glm::vec2(0, 0), 0, 10, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat3 = new Box(glm::vec2(115, 80), glm::vec2(0, 0), 0, 10, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
+	Box * movingPlat4 = new Box(glm::vec2(140, 80), glm::vec2(0, 0), 0, 10, glm::vec2(10, 1), glm::vec4(0, 1, 0, 1));
 	movingPlat1->setLinearDrag(1.0f);
 	movingPlat2->setLinearDrag(1.0f);
 	movingPlat3->setLinearDrag(1.0f);
@@ -271,11 +323,11 @@ void FixedTimestepApp::Platformer()
 	movingPlat2->setAngularDrag(2.0f);
 	movingPlat3->setAngularDrag(2.0f);
 	movingPlat4->setAngularDrag(2.0f);
-	Spring * attach1 = new Spring(anchor1, movingPlat1, 1, 1000, 0.1f, glm::vec2(0,0), glm::vec2(-10,0));
-	Spring * attach2 = new Spring(movingPlat1, movingPlat2, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
-	Spring * attach3 = new Spring(movingPlat2, movingPlat3, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
-	Spring * attach4 = new Spring(movingPlat3, movingPlat4, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
-	Spring * attach5 = new Spring(movingPlat4, anchor2, 1, 1000, 0.1f, glm::vec2(10, 0), glm::vec2(0, 0));
+	Spring * attach1 = new Spring(anchor1, movingPlat1, 1, 100, 0.1f, glm::vec2(0,0), glm::vec2(-10,0));
+	Spring * attach2 = new Spring(movingPlat1, movingPlat2, 1, 100, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach3 = new Spring(movingPlat2, movingPlat3, 1, 100, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach4 = new Spring(movingPlat3, movingPlat4, 1, 100, 0.1f, glm::vec2(10, 0), glm::vec2(-10, 0));
+	Spring * attach5 = new Spring(movingPlat4, anchor2, 1, 100, 0.1f, glm::vec2(10, 0), glm::vec2(0, 0));
 	m_physicsScene->addActor(anchor1);	
 	m_physicsScene->addActor(anchor2);
 	m_physicsScene->addActor(movingPlat1);
@@ -288,7 +340,7 @@ void FixedTimestepApp::Platformer()
 	m_physicsScene->addActor(attach4);
 	m_physicsScene->addActor(attach5);
 
-	Sphere * ball1 = new Sphere(glm::vec2(65, 90), glm::vec2(0, 10), 10, 2, glm::vec4(0, 1, 1, 1));
+	Sphere * ball1 = new Sphere(glm::vec2(65, 90), glm::vec2(0, 10), 1, 2, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->addActor(ball1);
 
 }
@@ -297,24 +349,27 @@ void FixedTimestepApp::BallandCorner()
 {
 	m_physicsScene = new PhysicsScene();
 	m_physicsScene->setTimeStep(0.01f);
-
+	//m_physicsScene->setGravity(glm::vec2(0,-100.0f));
 	//Bounds
 	float aspRatio = 16 / 9.f;
 	Plane* bottom = new Plane(glm::vec2(0, 1), 2);
-	Plane* top = new Plane(glm::vec2(0, 1), (200.0f / aspRatio) - 2.0f);
+	Plane* top = new Plane(glm::vec2(0, 1), 1000 / aspRatio - 2.0f);
 	Plane* left = new Plane(glm::vec2(1, 0), 2);
-	Plane* right = new Plane(glm::vec2(1, 0), 198);
+	Plane* right = new Plane(glm::vec2(1, 0), 1000 - 2.0f);
 
 	m_physicsScene->addActor(bottom);
 	m_physicsScene->addActor(top);
 	m_physicsScene->addActor(left);
 	m_physicsScene->addActor(right);
 
-	Box * box1 = new Box(glm::vec2(50, 50), glm::vec2(0, 0), 0, 10, glm::vec2(4, 4), glm::vec4(1, 1, 1, 1));
-	Sphere * ball1 = new Sphere(glm::vec2(56, 70), glm::vec2(0, -10), 10, 3, glm::vec4(1, 1, 1, 1));
+	Box * box1 = new Box(glm::vec2(500, 200), glm::vec2(0, 0), 0, 10, glm::vec2(40, 40), glm::vec4(1, 1, 1, 1));
+	Sphere * ball1 = new Sphere(glm::vec2(501, 199), glm::vec2(0, 0), 10, 10, glm::vec4(1, 1, 0, 1));
 	//box1->setKinematic(true);
+	box1->setAngularDrag(1.0f);
+	box1->setLinearDrag(1.0f);
+
 	m_physicsScene->addActor(box1);
-	//m_physicsScene->addActor(ball1);
+	m_physicsScene->addActor(ball1);
 }
 
 

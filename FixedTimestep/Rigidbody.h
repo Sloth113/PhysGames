@@ -21,7 +21,7 @@ public:
 
 	
 	bool isKinematic() { return m_isKinematic; }
-	void setKinematic(bool set) { m_isKinematic = set; m_mass = (float)INT_MAX; m_moment = (float)INT_MAX;}
+	void setKinematic(bool set) { m_isKinematic = set; m_mass = (float)INT_MAX; m_moment = (float)INT_MAX;} //should change to get Mass and get Moment for dynamically changing kinematics
 	glm::vec2 getPosition() { return m_position; }
 	void setPosition(glm::vec2 pos) { m_position = pos; }
 	float getRotation() { return m_rotation; }

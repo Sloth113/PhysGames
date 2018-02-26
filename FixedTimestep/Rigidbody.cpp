@@ -34,6 +34,7 @@ void Rigidbody::fixedUpdate(glm::vec2 gravity, float timeStep)
 	}
 	else {
 		m_velocity = glm::vec2(0, 0);
+		m_angularVelocity = 0;
 		return; 
 	}
 }
