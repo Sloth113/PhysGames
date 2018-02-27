@@ -36,6 +36,7 @@ public:
 	void SpringTests();
 	void Platformer();
 	void BallandCorner();
+	void SoftBody();
 
 protected:
 
@@ -48,6 +49,7 @@ protected:
 	float ballSize;
 	Rigidbody * m_hitThis;
 	Rigidbody * m_moveThis;
+	bool m_oldKinState;
 	//glm::vec2 m_force;
 	glm::vec2 m_clickPos;
 

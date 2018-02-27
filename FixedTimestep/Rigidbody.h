@@ -21,14 +21,15 @@ public:
 
 	
 	bool isKinematic() { return m_isKinematic; }
-	void setKinematic(bool set) { m_isKinematic = set; m_mass = (float)INT_MAX; m_moment = (float)INT_MAX;} //should change to get Mass and get Moment for dynamically changing kinematics
+	void setKinematic(bool set) { m_isKinematic = set; /*m_mass = (float)INT_MAX; m_moment = (float)INT_MAX;*/} //should change to get Mass and get Moment for dynamically changing kinematics
 	glm::vec2 getPosition() { return m_position; }
 	void setPosition(glm::vec2 pos) { m_position = pos; }
 	float getRotation() { return m_rotation; }
 	void setRotation(float set) { m_rotation = set * (3.141592f / 180.0f); }
 	glm::vec2 getVelocity() { return m_velocity; }
 	void setVelocity(glm::vec2 set) { m_velocity = set; }
-	float getMass() { return m_mass; }
+	float getMass() { return m_isKinematic ? INT_MAX : m_mass; }
+	float getMoment() { return m_isKinematic ? INT_MAX : m_moment; }
 	void setMass(float set) { m_mass = set; }
 	float getLinearDrag() { return m_linearDrag; }
 	void setLinearDrag(float set) { m_linearDrag = set; }

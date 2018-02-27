@@ -10,9 +10,6 @@ Spring::~Spring()
 {
 }
 
-
-
-
 void Spring::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
 	

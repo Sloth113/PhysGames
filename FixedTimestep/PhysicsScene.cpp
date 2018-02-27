@@ -24,8 +24,12 @@ void PhysicsScene::removeActor(PhysicsObject * actor)
 {
 	
 	for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
-		if(actor == (*it))
+		if (actor == (*it)) {
+			PhysicsObject * delThis = (*it);
 			it = m_actors.erase(it);
+			//CHECK IF SPRING 
+			delete delThis;
+		}
 
 		if (it == m_actors.end()) {
 			break;

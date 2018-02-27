@@ -34,8 +34,9 @@ bool FixedTimestepApp::startup() {
 	//Overload();
 	//AllTheShapes();
 	//SpringTests();
-	Platformer();
+	//Platformer();
 	//BallandCorner();
+	SoftBody();
 
 	/*
 	m_physicsScene = new PhysicsScene();
@@ -111,8 +112,10 @@ void FixedTimestepApp::update(float deltaTime) {
 		aie::Gizmos::add2DCircle(click, ballSize, 32, glm::vec4(1, 0, 1, 1));
 	}
 	if (input->wasMouseButtonReleased(aie::INPUT_MOUSE_BUTTON_LEFT) && ballSize > 0) {
-		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
-		m_physicsScene->addActor(ball);
+		//Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
+		//m_physicsScene->addActor(ball);
+		Box * newBox = new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(ballSize/2, ballSize/2), glm::vec4(0, 0, 1, 1));
+		m_physicsScene->addActor(newBox);
 		ballSize = 0;
 	}
 	//Right click to give objects force
@@ -149,6 +152,8 @@ void FixedTimestepApp::update(float deltaTime) {
 					Sphere * tmp = new Sphere(click, glm::vec2(0, 0), 1, 1, glm::vec4(0, 1, 1, 1));
 					if (r->checkCollision(tmp)) {
 						m_moveThis = r;
+						m_oldKinState = m_moveThis->isKinematic();
+						m_moveThis->setKinematic(true);
 					}
 					delete tmp;
 				}
@@ -159,7 +164,9 @@ void FixedTimestepApp::update(float deltaTime) {
 		}
 	}
 	if (input->isMouseButtonUp(aie::INPUT_MOUSE_BUTTON_MIDDLE) && m_moveThis != nullptr) {
+		m_moveThis->setKinematic(m_oldKinState);
 		m_moveThis = nullptr;
+		
 	}
 
 	if (input->wasKeyPressed(aie::INPUT_KEY_DELETE) || input->wasKeyPressed(aie::INPUT_KEY_SPACE)) {
@@ -391,6 +398,82 @@ void FixedTimestepApp::BallandCorner()
 	m_physicsScene->addActor(box2);
 	m_physicsScene->addActor(ball2);
 
+}
+
+void FixedTimestepApp::SoftBody()
+{
+	m_physicsScene = new PhysicsScene();
+	m_physicsScene->setGravity(glm::vec2(0, -100));
+	m_physicsScene->setTimeStep(0.01f);
+	
+	//Bounds NOW IN SOLID FORM
+	float aspRatio = 16 / 9.f;
+	Box* bottom = new Box(glm::vec2(500, -200), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* top = new Box(glm::vec2(500, 1000 / aspRatio + 200), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* left = new Box(glm::vec2(-200, 500 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(210, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* right = new Box(glm::vec2(1200, 500 / aspRatio ), glm::vec2(0, 0), 0, 500, glm::vec2(210, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	
+	bottom->setKinematic(true);
+	top->setKinematic(true);
+	left->setKinematic(true);
+	right->setKinematic(true);
+	
+	bottom->setElasticity(0.9f);
+	top->setElasticity(0.9f);
+	left->setElasticity(0.9f);
+	right->setElasticity(0.9f);
+
+	m_physicsScene->addActor(bottom);
+	m_physicsScene->addActor(top);
+	m_physicsScene->addActor(left);
+	m_physicsScene->addActor(right);
+
+	//Static terrain
+	Box* box1 = new Box(glm::vec2(400, 400), glm::vec2(0, 0), -20, 1, glm::vec2(100, 20), glm::vec4(0, 1, 0, 1));
+	box1->setKinematic(true);
+	m_physicsScene->addActor(box1);
+
+	Box* box2 = new Box(glm::vec2(550, 200), glm::vec2(0, 0), 40, 1, glm::vec2(100, 20), glm::vec4(0, 1, 0, 1));
+	box2->setKinematic(true);
+	m_physicsScene->addActor(box2);
+
+	//Soft body
+	const int softDim = 5;
+	Sphere *** softBody = new Sphere**[softDim];
+	
+	for (int i = 0; i < softDim; i++) {
+		softBody[i] = new Sphere*[softDim];
+		for (int j = 0; j < softDim; j++) {
+			softBody[i][j] = new Sphere(glm::vec2(450 + i * 11, 400 + j *11), glm::vec2(0, 0), 1, 5, glm::vec4(0, 1, 1, 1));
+			softBody[i][j]->setLinearDrag(0.2f);
+			m_physicsScene->addActor(softBody[i][j]);
+			
+		}
+	}
+	for (int i = 0; i < softDim; i++) {
+		
+		for (int j = 0; j < softDim; j++) {
+			if (i < softDim && i > 0) {
+				Spring * connectI = new Spring(softBody[i][j], softBody[i - 1][j], 20, 10, 10);
+				m_physicsScene->addActor(connectI);
+			}
+			//Vertical connection
+			if (j < softDim && j > 0) {
+				Spring * connectJ = new Spring(softBody[i][j], softBody[i][j - 1], 20, 10, 10);
+				m_physicsScene->addActor(connectJ);
+			}
+			//Right diagonal connection
+			if (j > 0 && i > 0) {
+				Spring * connectD = new Spring(softBody[i][j], softBody[i - 1][j - 1], 20, 10, 10);
+				m_physicsScene->addActor(connectD);
+			}
+			//Left diagonal connection
+			if (j > 0 && i < softDim - 1) {
+				Spring * connectF = new Spring(softBody[i][j], softBody[i + 1][j - 1], 20, 10, 10);
+				m_physicsScene->addActor(connectF);
+			}
+		}
+	}
 }
 
 void FixedTimestepApp::SphereWallsCollisions()
