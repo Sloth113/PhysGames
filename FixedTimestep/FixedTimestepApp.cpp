@@ -34,8 +34,8 @@ bool FixedTimestepApp::startup() {
 	//Overload();
 	//AllTheShapes();
 	//SpringTests();
-	//Platformer();
-	BallandCorner();
+	Platformer();
+	//BallandCorner();
 
 	/*
 	m_physicsScene = new PhysicsScene();
@@ -160,6 +160,19 @@ void FixedTimestepApp::update(float deltaTime) {
 	}
 	if (input->isMouseButtonUp(aie::INPUT_MOUSE_BUTTON_MIDDLE) && m_moveThis != nullptr) {
 		m_moveThis = nullptr;
+	}
+
+	if (input->wasKeyPressed(aie::INPUT_KEY_DELETE) || input->wasKeyPressed(aie::INPUT_KEY_SPACE)) {
+		for (PhysicsObject * p : (m_physicsScene->getActors())) {
+			if (Rigidbody * r = dynamic_cast<Rigidbody*>(p)) {
+				Sphere * tmp = new Sphere(click, glm::vec2(0, 0), 1, 1, glm::vec4(0, 1, 1, 1));
+				if (r->checkCollision(tmp)) {
+					m_physicsScene->removeActor(p);
+					//p->setDestroy();
+				}
+				delete tmp;
+			}
+		}
 	}
 
 
@@ -340,7 +353,7 @@ void FixedTimestepApp::Platformer()
 	m_physicsScene->addActor(attach4);
 	m_physicsScene->addActor(attach5);
 
-	Sphere * ball1 = new Sphere(glm::vec2(65, 90), glm::vec2(0, 10), 1, 2, glm::vec4(0, 1, 1, 1));
+	Sphere * ball1 = new Sphere(glm::vec2(500, 100), glm::vec2(0, 10), 1, 30, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->addActor(ball1);
 
 }
@@ -368,10 +381,17 @@ void FixedTimestepApp::BallandCorner()
 	box1->setAngularDrag(1.0f);
 	box1->setLinearDrag(1.0f);
 
+	Box * box2 = new Box(glm::vec2(700, 300), glm::vec2(0, 0), 0, 10, glm::vec2(50, 10), glm::vec4(1, 1, 1, 1));
+	Sphere * ball2 = new Sphere(glm::vec2(704, 299), glm::vec2(0, 0), 10, 5, glm::vec4(1, 1, 0, 1));
+	//box1->setKinematic(true);
+	
 	m_physicsScene->addActor(box1);
 	m_physicsScene->addActor(ball1);
-}
 
+	m_physicsScene->addActor(box2);
+	m_physicsScene->addActor(ball2);
+
+}
 
 void FixedTimestepApp::SphereWallsCollisions()
 {

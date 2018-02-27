@@ -22,14 +22,15 @@ void PhysicsScene::addActor(PhysicsObject * actor)
 
 void PhysicsScene::removeActor(PhysicsObject * actor)
 {
-	std::vector<PhysicsObject *>::iterator pos = m_actors.begin();
-	while (pos != m_actors.end() || *pos != actor) {
-		pos++;
+	
+	for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
+		if(actor == (*it))
+			it = m_actors.erase(it);
+
+		if (it == m_actors.end()) {
+			break;
+		}
 	}
-	if (pos != m_actors.end()) {
-		m_actors.erase(pos);
-	}
-	//m_actors.erase(POINTER);
 }
 
 void PhysicsScene::update(float dt) {

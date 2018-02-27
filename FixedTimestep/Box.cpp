@@ -193,6 +193,7 @@ void Box::CollideWithSphere(Sphere * obj)
 
 	int numContacts = 0;
 	glm::vec2 contact(0, 0); // contact is in our box coordinates
+	float pen = 0;
 
 	 // check the four corners to see if any of them are inside the circle
 	for (float x = -w2; x <= w2; x += this->getWidth()) {
@@ -200,6 +201,9 @@ void Box::CollideWithSphere(Sphere * obj)
 			glm::vec2 p = x * m_localX + y * m_localY;
 			glm::vec2 dp = p - circlePos;
 			if (dp.x*dp.x + dp.y*dp.y <= obj->getRadius()*obj->getRadius()) {
+
+				//pen = obj->getRadius() - glm::length(dp);
+
 				numContacts++;
 				contact += glm::vec2(x, y);
 			}
@@ -209,44 +213,65 @@ void Box::CollideWithSphere(Sphere * obj)
 	glm::vec2* direction = nullptr;
 	// get the local position of the circle centre
 	glm::vec2 localPos(glm::dot(m_localX, circlePos), glm::dot(m_localY, circlePos));
-	
+	//Check each section inside the box, split into 4 parts
+	//Get smallest pen and make it the side it goes out. 
 	if (localPos.y < h2 && localPos.y > -h2) {
+		//right side
 		if (localPos.x > 0 && localPos.x < w2 + obj->getRadius()) {
-			numContacts++;
-			contact += glm::vec2(w2, localPos.y);
-			direction = new glm::vec2(m_localX);
+			float pen0 = w2 + obj->getRadius() - localPos.x;
+			if (pen0 < pen || pen == 0){
+				pen = pen0;
+				numContacts++;
+				direction = new glm::vec2(m_localX);
+				contact += glm::vec2(w2, localPos.y);
+			}
 		}
+		//left side
 		if (localPos.x < 0 && localPos.x > -(w2 + obj->getRadius())) {
-			numContacts++;
-			contact += glm::vec2(-w2, localPos.y);
-			direction = new glm::vec2(-m_localX);
+			float pen0 = -(w2 + obj->getRadius()) - localPos.x;
+			if (pen0 < pen || pen == 0) {
+				std::cout << "2:" << pen0 << std::endl;
+				pen = -pen0;
+				numContacts++;
+				
+				direction = new glm::vec2(-m_localX);
+				contact += glm::vec2(-w2, localPos.y);
+			}
 		}
 	}
 	if (localPos.x < w2 && localPos.x > -w2) {
+		//top half
 		if (localPos.y > 0 && localPos.y < h2 + obj->getRadius()) {
-			numContacts++;
-			contact += glm::vec2(localPos.x, h2);
-			direction = new glm::vec2(m_localY);
+			float pen0 = h2 + obj->getRadius() - localPos.y;
+			if (pen0 < pen || pen == 0) {
+				pen = pen0;
+				numContacts++;
+				direction = new glm::vec2(m_localY);
+				contact += glm::vec2(localPos.x, h2);
+			}
 		}
+		//bottom half
 		if (localPos.y < 0 && localPos.y > -(h2 + obj->getRadius())) {
-			numContacts++;
-			contact += glm::vec2(localPos.x, -h2);
-			direction = new glm::vec2(-m_localY);
+			float pen0 = -(h2 + obj->getRadius()) - localPos.y;
+			if (pen0 < pen || pen == 0) {
+				std::cout << "4:" << pen0 << std::endl;
+				pen = -pen0;
+				numContacts++;
+				direction = new glm::vec2(-m_localY);
+				contact += glm::vec2(localPos.x, -h2);
+			}
+
 		}
 	}
+	
+	if(pen != 0){
+		std::cout << "DIR " << direction->x << " " << direction->y << std::endl;
+		//std::cout << "PEN " << pen << std::endl;
+		contact = m_position + (1.0f/numContacts) * (m_localX *contact.x + m_localY * contact.y);
+		std::cout << "CON " << contact.x << " " << contact.y << std::endl;
+		glm::vec2 penVec = (*direction) * -pen;
 
-	if (numContacts > 0) {
-		// average, and convert back into world coords
-		contact = m_position + (1.0f / numContacts) * (m_localX *contact.x + m_localY*contact.y);
-		//std::cout << "Still trying to move out" << std::endl;
-		std::cout << obj->getPosition().x << " " << obj->getPosition().y << std::endl;
-
-		float pen = obj->getRadius() - glm::length(contact - obj->getPosition());
-		glm::vec2 penVec = glm::normalize(contact - obj->getPosition()); // direction in 
-		penVec = penVec*pen; //amount to push? 
-		std::cout << pen << " :" << penVec.x << " " << penVec.y <<":\n" << std::endl;
-
-		// move each shape away in the direction of penitration 
+		//Contact forces and then resolve collision
 		if (!this->isKinematic() && !obj->isKinematic()) {
 			this->setPosition(this->getPosition() + penVec*0.5f);
 			obj->setPosition(obj->getPosition() - penVec*0.5f); 

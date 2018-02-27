@@ -17,7 +17,7 @@ enum ShapeType {
 class PhysicsObject
 {
 protected:
-	PhysicsObject(ShapeType a_shapeID) : m_shapeID(a_shapeID) {}
+	PhysicsObject(ShapeType a_shapeID) : m_shapeID(a_shapeID), m_dead(false) {}
 
 public:
 	virtual void fixedUpdate(glm::vec2 gravity, float timeStep) = 0;
@@ -27,6 +27,9 @@ public:
 	int getShapeID() {
 		return (int)m_shapeID;
 	}
+	void setDestroy() {
+		m_dead = true;
+	}
 
 	virtual void Collide(PhysicsObject* obj) = 0;
 	virtual void CollideWithPlane(Plane* obj) = 0;
@@ -35,6 +38,7 @@ public:
 
 protected:
 	ShapeType m_shapeID;
+	bool m_dead;
 
 };
 
