@@ -13,27 +13,27 @@ Spring::~Spring()
 void Spring::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
 	
-	glm::vec2 p2 = m_body2->toWorld(m_contact2);
-	glm::vec2 p1 = m_body1->toWorld(m_contact1);
-	glm::vec2 dist = p2 - p1;
-	
-	float length = sqrtf(dist.x*dist.x + dist.y* dist.y);
+		glm::vec2 p2 = m_body2->toWorld(m_contact2);
+		glm::vec2 p1 = m_body1->toWorld(m_contact1);
+		glm::vec2 dist = p2 - p1;
 
-	// apply damping 
-	glm::vec2 relativeVelocity = m_body2->getVelocity() - m_body1->getVelocity();
-	// F = -kX - bv 
-	float dlength = (m_restLength - length);
-	if (dlength > m_restLength /**4*/) {
-		dlength = m_restLength;
-	}
-	if (dlength < -m_restLength /**4*/) {
-		dlength = -m_restLength;
-	}
-	
-	glm::vec2 force = dist * m_springCoefficient * dlength - m_damping * relativeVelocity;
+		float length = sqrtf(dist.x*dist.x + dist.y* dist.y);
 
-	m_body1->applyForce(-force * timeStep, p1 - m_body1->getPosition());
-	m_body2->applyForce(force * timeStep, p2 - m_body2->getPosition());
+		// apply damping 
+		glm::vec2 relativeVelocity = m_body2->getVelocity() - m_body1->getVelocity();
+		// F = -kX - bv 
+		float dlength = (m_restLength - length);
+		if (dlength > m_restLength /**4*/) {
+			dlength = m_restLength;
+		}
+		if (dlength < -m_restLength /**4*/) {
+			dlength = -m_restLength;
+		}
+
+		glm::vec2 force = dist * m_springCoefficient * dlength - m_damping * relativeVelocity;
+
+		m_body1->applyForce(-force * timeStep, p1 - m_body1->getPosition());
+		m_body2->applyForce(force * timeStep, p2 - m_body2->getPosition());
 	
 }
 

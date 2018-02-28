@@ -217,11 +217,12 @@ void Box::CollideWithSphere(Sphere * obj)
 	glm::vec2 localPos(glm::dot(m_localX, circlePos), glm::dot(m_localY, circlePos));
 	//Check each section inside the box, split into 4 parts
 	//Get smallest pen and make it the side it goes out. 
+	//Uses glm abs as dealing with negative pen on sides left/bottom
 	if (localPos.y < h2 && localPos.y > -h2) {
 		//right side
 		if (localPos.x > 0 && localPos.x < w2 + obj->getRadius()) {
-			float pen0 = w2 + obj->getRadius() - localPos.x;
-			if (pen0 < pen || pen == 0){
+			float pen0 =(w2 + obj->getRadius() - localPos.x);
+			if (glm::abs(pen0) < pen || pen == 0){
 				pen = pen0;
 				numContacts++;
 				direction = new glm::vec2(m_localX);
@@ -232,7 +233,7 @@ void Box::CollideWithSphere(Sphere * obj)
 		//left side
 		if (localPos.x < 0 && localPos.x > -(w2 + obj->getRadius())) {
 			float pen0 = -(w2 + obj->getRadius()) - localPos.x;
-			if (pen0 < pen || pen == 0) {
+			if (glm::abs(pen0) < pen || pen == 0) {
 				pen = -pen0;
 				numContacts++;
 				direction = new glm::vec2(-m_localX);
@@ -245,7 +246,7 @@ void Box::CollideWithSphere(Sphere * obj)
 		//top half
 		if (localPos.y > 0 && localPos.y < h2 + obj->getRadius()) {
 			float pen0 = h2 + obj->getRadius() - localPos.y;
-			if (pen0 < pen || pen == 0) {
+			if (glm::abs(pen0) < pen || pen == 0) {
 				pen = pen0;
 				numContacts++;
 				direction = new glm::vec2(m_localY);
@@ -256,7 +257,7 @@ void Box::CollideWithSphere(Sphere * obj)
 		//bottom half
 		if (localPos.y < 0 && localPos.y > -(h2 + obj->getRadius())) {
 			float pen0 = -(h2 + obj->getRadius()) - localPos.y;
-			if (pen0 < pen || pen == 0) {
+			if (glm::abs(pen0) < pen || pen == 0) {
 				pen = -pen0;
 				numContacts++;
 				direction = new glm::vec2(-m_localY);

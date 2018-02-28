@@ -1,4 +1,5 @@
 #include "PhysicsScene.h"
+#include <algorithm>
 
 
 
@@ -28,6 +29,7 @@ void PhysicsScene::removeActor(PhysicsObject * actor)
 			PhysicsObject * delThis = (*it);
 			it = m_actors.erase(it);
 			//CHECK IF SPRING 
+			
 			delete delThis;
 		}
 
@@ -80,8 +82,12 @@ void PhysicsScene::update(float dt) {
 		
 		dirty.clear();
 		*/
+		//Collision check function
 		checkForCollision();
-	
+		//Then clean up dead
+		std::vector<PhysicsObject *> delList = m_actors;
+		std::remove_if(m_actors.begin(), m_actors.end(), [](PhysicsObject * p) {return p->isDead(); });
+		std::remove_if(delList.begin(), delList.end(), [](PhysicsObject * p) {return !p->isDead(); });
 	}
 
 }

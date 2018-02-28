@@ -34,9 +34,9 @@ bool FixedTimestepApp::startup() {
 	//Overload();
 	//AllTheShapes();
 	//SpringTests();
-	//Platformer();
+	Platformer();
 	//BallandCorner();
-	SoftBody();
+	//SoftBody();
 
 	/*
 	m_physicsScene = new PhysicsScene();
@@ -112,10 +112,10 @@ void FixedTimestepApp::update(float deltaTime) {
 		aie::Gizmos::add2DCircle(click, ballSize, 32, glm::vec4(1, 0, 1, 1));
 	}
 	if (input->wasMouseButtonReleased(aie::INPUT_MOUSE_BUTTON_LEFT) && ballSize > 0) {
-		//Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
-		//m_physicsScene->addActor(ball);
-		Box * newBox = new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(ballSize/2, ballSize/2), glm::vec4(0, 0, 1, 1));
-		m_physicsScene->addActor(newBox);
+		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
+		m_physicsScene->addActor(ball);
+		//Box * newBox = new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(ballSize/2, ballSize/2), glm::vec4(0, 0, 1, 1));
+		//m_physicsScene->addActor(newBox);
 		ballSize = 0;
 	}
 	//Right click to give objects force
@@ -322,6 +322,7 @@ void FixedTimestepApp::Platformer()
 	m_physicsScene->addActor(right);
 
 	//Level bits
+	/*
 	Box * platform1 = new Box(glm::vec2(10, 50), glm::vec2(0, 0), -20, 100, glm::vec2(10, 2), glm::vec4(0, 1, 0, 1));
 	platform1->setElasticity(1);
 	platform1->setKinematic(true);
@@ -362,6 +363,38 @@ void FixedTimestepApp::Platformer()
 
 	Sphere * ball1 = new Sphere(glm::vec2(500, 100), glm::vec2(0, 10), 1, 30, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->addActor(ball1);
+	*/
+	
+	//Sphere * anchor1 = new Sphere(glm::vec2(100, 100), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
+	//anchor1->setKinematic(true);
+	//Sphere * anchor2 = new Sphere(glm::vec2(400, 300), glm::vec2(0, 0), 100, 2, glm::vec4(0, 0, 1, 1));
+	//anchor2->setKinematic(true);
+	//m_physicsScene->addActor(anchor1);
+	//m_physicsScene->addActor(anchor2);
+	float gap = 10;
+	glm::vec2 p1 = glm::vec2(200, 300);
+	glm::vec2 p2 = glm::vec2(800, 400);
+	//glm::vec2 dist = anchor1->getPosition() - anchor2->getPosition();
+	glm::vec2 dist = p1 - p2;
+	glm::vec2 dir = glm::normalize(dist);
+
+	Sphere * first = new Sphere(glm::vec2(p2 + (dir * (0 * gap))), glm::vec2(0, 0), 1, 2, glm::vec4(1, 1, 1, 1));
+	m_physicsScene->addActor(first);
+	first->setKinematic(true);
+	for (int i = 1; i < glm::length(dist)/ gap; i++) {
+		Sphere * second = new Sphere(glm::vec2(p2 + (dir * (i * gap))), glm::vec2(0, 0), 1, 2, glm::vec4(1, 1, 1, 1));
+		//second->setKinematic(true);
+		m_physicsScene->addActor(second);
+		Spring * attch = new Spring(first, second, gap /1.5f, 200, 50);
+		m_physicsScene->addActor(attch);
+		first = second;
+
+	}
+	first->setKinematic(true);
+	//std::cout << glm::length(dist);
+
+
+
 
 }
 
@@ -408,10 +441,10 @@ void FixedTimestepApp::SoftBody()
 	
 	//Bounds NOW IN SOLID FORM
 	float aspRatio = 16 / 9.f;
-	Box* bottom = new Box(glm::vec2(500, -200), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* top = new Box(glm::vec2(500, 1000 / aspRatio + 200), glm::vec2(0, 0), 0, 500, glm::vec2(1000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* left = new Box(glm::vec2(-200, 500 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(210, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-	Box* right = new Box(glm::vec2(1200, 500 / aspRatio ), glm::vec2(0, 0), 0, 500, glm::vec2(210, 600), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* bottom = new Box(glm::vec2(500, -200), glm::vec2(0, 0), 0, 500, glm::vec2(10000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* top = new Box(glm::vec2(500, 1000 / aspRatio + 200), glm::vec2(0, 0), 0, 500, glm::vec2(10000, 210), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* left = new Box(glm::vec2(-200, 500 / aspRatio), glm::vec2(0, 0), 0, 500, glm::vec2(210, 6000), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+	Box* right = new Box(glm::vec2(1200, 500 / aspRatio ), glm::vec2(0, 0), 0, 500, glm::vec2(210, 6000), glm::vec4(0.5f, 0.5f, 0.5f, 1));
 	
 	bottom->setKinematic(true);
 	top->setKinematic(true);
@@ -436,8 +469,9 @@ void FixedTimestepApp::SoftBody()
 	Box* box2 = new Box(glm::vec2(550, 200), glm::vec2(0, 0), 40, 1, glm::vec2(100, 20), glm::vec4(0, 1, 0, 1));
 	box2->setKinematic(true);
 	m_physicsScene->addActor(box2);
-
+	
 	//Soft body
+	/*
 	const int softDim = 5;
 	Sphere *** softBody = new Sphere**[softDim];
 	
@@ -474,6 +508,7 @@ void FixedTimestepApp::SoftBody()
 			}
 		}
 	}
+	*/
 }
 
 void FixedTimestepApp::SphereWallsCollisions()

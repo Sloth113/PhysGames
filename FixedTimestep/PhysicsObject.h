@@ -30,6 +30,9 @@ public:
 	void setDestroy() {
 		m_dead = true;
 	}
+	bool isDead() {
+		return m_dead;
+	}
 
 	virtual void Collide(PhysicsObject* obj) = 0;
 	virtual void CollideWithPlane(Plane* obj) = 0;
