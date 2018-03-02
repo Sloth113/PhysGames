@@ -23,18 +23,14 @@ void PhysicsScene::addActor(PhysicsObject * actor)
 
 void PhysicsScene::removeActor(PhysicsObject * actor)
 {
-	
+	actor->setDestroy();
+	//Get all springs attached to this actor and destroy them
 	for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
-		if (actor == (*it)) {
-			PhysicsObject * delThis = (*it);
-			it = m_actors.erase(it);
-			//CHECK IF SPRING 
-			
-			delete delThis;
-		}
-
-		if (it == m_actors.end()) {
-			break;
+		if (Spring * spring = dynamic_cast<Spring*>(*it)) {
+			if (spring->hasBody(dynamic_cast<Rigidbody*>(actor))) {
+				spring->setDestroy();
+				//will be destroyed at end of update 
+			}
 		}
 	}
 }
@@ -84,10 +80,17 @@ void PhysicsScene::update(float dt) {
 		*/
 		//Collision check function
 		checkForCollision();
-		//Then clean up dead
-		std::vector<PhysicsObject *> delList = m_actors;
-		std::remove_if(m_actors.begin(), m_actors.end(), [](PhysicsObject * p) {return p->isDead(); });
-		std::remove_if(delList.begin(), delList.end(), [](PhysicsObject * p) {return !p->isDead(); });
+		//Then clean up dead // Go through list if marked for dead remove from list and delete data
+		for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
+			if ((*it)->isDead()) {
+				PhysicsObject * del = *it;
+				it = m_actors.erase(it);
+				delete del;
+			}
+			if (it == m_actors.end()) {
+				break;
+			}
+		}
 	}
 
 }

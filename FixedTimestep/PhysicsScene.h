@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include "Rigidbody.h"
+#include "Spring.h"
 #include "PhysicsObject.h"
 
 

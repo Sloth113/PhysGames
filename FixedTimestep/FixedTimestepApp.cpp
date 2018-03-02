@@ -112,7 +112,8 @@ void FixedTimestepApp::update(float deltaTime) {
 		aie::Gizmos::add2DCircle(click, ballSize, 32, glm::vec4(1, 0, 1, 1));
 	}
 	if (input->wasMouseButtonReleased(aie::INPUT_MOUSE_BUTTON_LEFT) && ballSize > 0) {
-		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize , ballSize, glm::vec4(0, 0, 1, 1));
+		Sphere * ball = new Sphere(click, glm::vec2(0, 0), ballSize *ballSize / 100 , ballSize, glm::vec4(0, 0, 1, 1));
+		ball->setLinearDrag(0.8f);
 		m_physicsScene->addActor(ball);
 		//Box * newBox = new Box(click, glm::vec2(0, 0), 0, 1, glm::vec2(ballSize/2, ballSize/2), glm::vec4(0, 0, 1, 1));
 		//m_physicsScene->addActor(newBox);
@@ -174,8 +175,7 @@ void FixedTimestepApp::update(float deltaTime) {
 			if (Rigidbody * r = dynamic_cast<Rigidbody*>(p)) {
 				Sphere * tmp = new Sphere(click, glm::vec2(0, 0), 1, 1, glm::vec4(0, 1, 1, 1));
 				if (r->checkCollision(tmp)) {
-					m_physicsScene->removeActor(p);
-					//p->setDestroy();
+					m_physicsScene->removeActor(p);//so springs are checked 
 				}
 				delete tmp;
 			}

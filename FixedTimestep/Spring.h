@@ -9,7 +9,13 @@ public:
 	virtual void fixedUpdate(glm::vec2 gravity, float timeStep);
 	virtual void debug();
 	virtual void makeGizmo();
-
+	bool hasBody(Rigidbody * b) { return b == m_body1 || b == m_body2; }
+	Rigidbody * getOther(Rigidbody * b)	
+	{
+		if		(b = m_body1)	return m_body2;
+		else if (b = m_body2)	return m_body1;
+		else					return nullptr;
+	}
 	virtual void Collide(PhysicsObject* obj) {};
 	virtual void CollideWithPlane(Plane* obj) {};
 	virtual void CollideWithSphere(Sphere* obj) {};

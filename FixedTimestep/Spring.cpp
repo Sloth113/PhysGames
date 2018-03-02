@@ -12,7 +12,11 @@ Spring::~Spring()
 
 void Spring::fixedUpdate(glm::vec2 gravity, float timeStep)
 {
-	
+	//If one of the attached bodies is to die so is this and dont update
+	if (m_body1->isDead() || m_body2->isDead()) {
+		m_dead = true; 
+	}
+	if (!m_dead) {
 		glm::vec2 p2 = m_body2->toWorld(m_contact2);
 		glm::vec2 p1 = m_body1->toWorld(m_contact1);
 		glm::vec2 dist = p2 - p1;
@@ -34,7 +38,7 @@ void Spring::fixedUpdate(glm::vec2 gravity, float timeStep)
 
 		m_body1->applyForce(-force * timeStep, p1 - m_body1->getPosition());
 		m_body2->applyForce(force * timeStep, p2 - m_body2->getPosition());
-	
+	}
 }
 
 void Spring::debug()
@@ -43,6 +47,7 @@ void Spring::debug()
 
 void Spring::makeGizmo()
 {
+	if(!m_dead)
 	aie::Gizmos::add2DLine(m_body1->toWorld(m_contact1), m_body2->toWorld(m_contact2), glm::vec4(0.5, 0.5, 0.5, 1));
 }
 
