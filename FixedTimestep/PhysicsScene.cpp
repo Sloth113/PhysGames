@@ -2,12 +2,11 @@
 #include <algorithm>
 
 
-
+//Default timestep and gravity set here 
 PhysicsScene::PhysicsScene() :m_timeStep(0.01f), m_gravity(glm::vec2(0, 0))
 {
 }
-
-
+//Delete list of actors MEMORY
 PhysicsScene::~PhysicsScene()
 {
 	for (auto pActor : m_actors)
@@ -15,34 +14,23 @@ PhysicsScene::~PhysicsScene()
 		delete pActor;
 	}
 }
-
+//Add actor to the scene
 void PhysicsScene::addActor(PhysicsObject * actor)
 {
 	m_actors.insert(m_actors.end(), actor);
 }
-
+//Remove actor from scene (will be set to destroy and cleared at end of next update.) Future me should change to destroy here.
 void PhysicsScene::removeActor(PhysicsObject * actor)
 {
 	actor->setDestroy();
-	//Get all springs attached to this actor and destroy them
-	for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
-		if (Spring * spring = dynamic_cast<Spring*>(*it)) {
-			if (spring->hasBody(dynamic_cast<Rigidbody*>(actor))) {
-				spring->setDestroy();
-				//will be destroyed at end of update 
-			}
-		}
-	}
 }
-
+//Fixed update loop
 void PhysicsScene::update(float dt) {
-	// update physics at a fixed time step
-	static std::list<PhysicsObject*> dirty;
 
 	//update at fixed time step
 	static float accumulatedTime = 0.0f;
 	accumulatedTime += dt;
-
+	//Once enough time has passed do an update on all actors 
 	while (accumulatedTime >= m_timeStep)
 	{
 		for (auto pActor : m_actors)
@@ -51,35 +39,21 @@ void PhysicsScene::update(float dt) {
 		}
 		accumulatedTime -= m_timeStep;
 
-		//Collisions
-		// check for collisions (ideally you'd want to have some sort of 
-		// scene management in place)
-		/*
-		for (auto pActor : m_actors) {
-			for (auto pOther : m_actors) {
-				if (pActor == pOther)
-					continue;
-				if (std::find(dirty.begin(), dirty.end(), pActor) != dirty.end() &&	std::find(dirty.begin(), dirty.end(), pOther) != dirty.end())
-					continue;
+		//Collision check function
+		checkForCollision();
+		//
 
-				Rigidbody* pRigid = dynamic_cast<Rigidbody*>(pActor);
-				
-				if (pRigid->checkCollision(pOther) == true) {
-					Rigidbody* other = dynamic_cast<Rigidbody*>(pOther);
-					glm::vec2 force = other->getVelocity() * other->getMass();
-					float massDif = pRigid->getMass() / other->getMass();
-					pRigid->applyForceToActor(dynamic_cast<Rigidbody*>(pOther),	pRigid->getVelocity() * pRigid->getMass() / massDif);	
-					dirty.push_back(pRigid);
-					other->applyForceToActor(pRigid, force / massDif);
-					dirty.push_back(pOther);
+
+		//Deletion cleanup
+		//Get all springs attached to this actor and destroy them
+		for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
+			if (Spring * spring = dynamic_cast<Spring*>(*it)) {
+				if ((spring->getBody1())->isDead() || (spring->getBody2())->isDead()) {
+					spring->setDestroy();
+					//will be destroyed at end of update 
 				}
 			}
 		}
-		
-		dirty.clear();
-		*/
-		//Collision check function
-		checkForCollision();
 		//Then clean up dead // Go through list if marked for dead remove from list and delete data
 		for (std::vector<PhysicsObject*>::iterator it = m_actors.begin(); it != m_actors.end(); it++) {
 			if ((*it)->isDead()) {
@@ -94,15 +68,14 @@ void PhysicsScene::update(float dt) {
 	}
 
 }
-
-
+//Draw each actor
 void PhysicsScene::updateGizmos()
 {
 	for (auto pActor : m_actors) {
 		pActor->makeGizmo();
 	}
 }
-
+//Debug info, this calculates kinetic, was not used for when rotational and potential energy was introduced
 void PhysicsScene::debugScene()
 {
 	int count = 0;
@@ -124,18 +97,7 @@ void PhysicsScene::debugScene()
 	std::cout << sysEnergy << std::endl;
 
 }
-
-/* Replaced with virtual functions within physics obect*/
-/*
-typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
-static fn collisionFunctionArray[] =
-{
-	PhysicsScene::plane2Plane, PhysicsScene::plane2Sphere, 
-	PhysicsScene::sphere2Plane, PhysicsScene::sphere2Sphere,
-
-};
-*/
-
+//Collision check each object is check with each other object
 void PhysicsScene::checkForCollision() {
 	int actorCount = m_actors.size();
 
@@ -144,21 +106,10 @@ void PhysicsScene::checkForCollision() {
 		for (int inner = outer + 1; inner < actorCount; inner++) {
 			PhysicsObject* object1 = m_actors[outer];
 			PhysicsObject* object2 = m_actors[inner];
-
+			//If the actor is a join dont check collision, could update to include dead
 			if (object1->getShapeID() < 0 || object2->getShapeID() < 0)
 				continue;
 			object1->Collide(object2);
-			//int shapeId1 = object1->getShapeID();
-			//int shapeId2 = object2->getShapeID();
-			
-			//function pointers
-			/*
-			int functionIdx = (shapeId1 * ShapeType::SHAPE_COUNT) + shapeId2;
-			fn collisionFunctionPtr = collisionFunctionArray[functionIdx];
-			if (collisionFunctionPtr != nullptr) {
-				collisionFunctionPtr(object1, object2);
-			}
-			*/
 		}
 	}
 }

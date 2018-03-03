@@ -36,9 +36,6 @@
     <ClCompile Include="Box.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Line.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsScene.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
@@ -54,7 +51,13 @@
     <ClCompile Include="Spring.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="DeathBox.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
     <ClCompile Include="PlatformPlayer.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Box.h">
-      <Filter>Header Files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Line.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsObject.h">
@@ -89,7 +89,13 @@
     <ClInclude Include="Spring.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="DeathBox.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
     <ClInclude Include="PlatformPlayer.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsDemo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

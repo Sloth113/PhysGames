@@ -1,6 +1,6 @@
 #pragma once
 #include "Sphere.h"
-
+//Was used for player keyboard input, didnt like how the jump acted so not being used but still has a jump function if used
 class PlatformPlayer :	public Sphere
 {
 public:

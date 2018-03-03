@@ -1,10 +1,11 @@
 #include "FixedTimestepApp.h"
-//#include ""
+#include "PhysicsDemo.h"
 
 int main() {
 	
 	// allocation
-	auto app = new FixedTimestepApp();
+	//auto app = new FixedTimestepApp();
+	auto app = new PhysicsDemo();
 
 	// initialise and loop
 	app->run("AIE", 1280, 720, false);

@@ -18,19 +18,20 @@
 
 //Provided base loop clss that works with bootstrap
 //update and draw are called every frame
-class FixedTimestepApp : public aie::Application {
+class PhysicsDemo : public aie::Application {
 public:
 
-	FixedTimestepApp();
-	virtual ~FixedTimestepApp();
+	PhysicsDemo();
+	virtual ~PhysicsDemo();
 
 	virtual bool startup();
 	virtual void shutdown();
 
 	virtual void update(float deltaTime);
 	virtual void draw();
-
 	//Set up scenes
+	void PhysicsBuild();
+	//
 	void SphereWallsCollisions();
 	void TestingScene();
 	void CradleTest();
@@ -45,14 +46,14 @@ protected:
 
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;
-
+	//Physics engine 
 	PhysicsScene*		m_physicsScene;
-	Sphere* bigBall;
-	Box * testB;
-	float ballSize;
+	//Variables used in dynamic elements in update loop 
+	float m_ballSize;
 	Rigidbody * m_hitThis;
 	Rigidbody * m_moveThis;
 	bool m_oldKinState;
 	glm::vec2 m_clickPos;
 
 };
+
